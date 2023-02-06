@@ -1,14 +1,16 @@
 from settings import *
 from src import manage
+from src import status
 
 # GET LIST of RA
-@app.route(f'{url_base}{version}ra',methods=['GET'])
+@app.route(f'{url_base}{version}list',methods=['GET'])
 def getRAs():
-    
-    listRas = manage.action_list()
-    return listRas
+    success, data = manage.action_list(out='json')
+    return data
+
     
 # GET SPECIFIC RA
-@app.route(f'{url_base}{version}ra/<int:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}status/<string:ra_name>',methods=['GET'])
 def getRA(ra_name):
-    return f'received ra number: {ra_name}'
+    success, data = status.action_status(ra_name)
+    return data
