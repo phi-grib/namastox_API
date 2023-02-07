@@ -6,19 +6,15 @@ from namastox import status
 @app.route(f'{url_base}{version}list',methods=['GET'])
 def getList():
     success, data = manage.action_list(out='json')
-    if success:
-        return data
-    else:
-        return 'Failed to obtain list of RA', 500
+    
+    return data if success else ('Failed to obtain list of RA', 500)
 
 # GET LIST of steps
 @app.route(f'{url_base}{version}steps/<string:ra_name>',methods=['GET'])
 def getSteps(ra_name):
     success, data = manage.action_steps(ra_name, out='json')
-    if success:
-        return data
-    else:
-        return 'Failed to obtain steps for RA', 500
+    
+    return data if success else ('Failed to obtain steps for RA', 500)
 
 # GET STATUS of RA
 @app.route(f'{url_base}{version}status/<string:ra_name>',methods=['GET'])
