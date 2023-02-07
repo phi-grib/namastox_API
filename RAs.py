@@ -4,7 +4,7 @@ from src import status
 
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
-def getRAs():
+def getList():
     success, data = manage.action_list(out='json')
     if success:
         return data
@@ -20,12 +20,21 @@ def getSteps(ra_name):
     else:
         return 'Failed to obtain steps for RA', 500
 
-# GET SPECIFIC RA
+# GET STATUS of RA
 @app.route(f'{url_base}{version}status/<string:ra_name>',methods=['GET'])
 @app.route(f'{url_base}{version}status/<string:ra_name>/<int:step>',methods=['GET'])
-def getRA(ra_name, step=None):
-    success, data = status.action_status(ra_name, step)
+def getStatus(ra_name, step=None):
+    success, data = status.action_status(ra_name, step, out='json')
     if success:
         return data
     else:
         return f'Failed to obtain status for {ra_name} {step}', 500
+
+# GET GENERAL INFO RA
+@app.route(f'{url_base}{version}general_info/<string:ra_name>',methods=['GET'])
+def getGeneralInfo(ra_name):
+    success, data = manage.action_info(ra_name, out='json')
+    if success:
+        return data
+    else:
+        return f'Failed to obtain general info for {ra_name}', 500
