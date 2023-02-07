@@ -1,4 +1,5 @@
 from settings import *
+from flask import jsonify
 notes = [
       {
           "name":'Note1',
