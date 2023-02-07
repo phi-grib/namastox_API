@@ -1,6 +1,6 @@
 from settings import *
-from src import manage
-from src import status
+from namastox import manage
+from namastox import status
 
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
