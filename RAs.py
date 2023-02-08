@@ -5,6 +5,7 @@ from namastox import results
 
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
+@cross_origin()
 def getList():
     success, data = manage.action_list(out='json')
     
@@ -12,6 +13,7 @@ def getList():
 
 # GET LIST of steps
 @app.route(f'{url_base}{version}steps/<string:ra_name>',methods=['GET'])
+@cross_origin()
 def getSteps(ra_name):
     success, data = manage.action_steps(ra_name, out='json')
     
@@ -20,6 +22,7 @@ def getSteps(ra_name):
 # GET STATUS of RA
 @app.route(f'{url_base}{version}status/<string:ra_name>',methods=['GET'])
 @app.route(f'{url_base}{version}status/<string:ra_name>/<int:step>',methods=['GET'])
+@cross_origin()
 def getStatus(ra_name, step=None):
     success, data = status.action_status(ra_name, step, out='json')
     if success:
@@ -29,6 +32,7 @@ def getStatus(ra_name, step=None):
 
 # GET GENERAL INFO RA
 @app.route(f'{url_base}{version}general_info/<string:ra_name>',methods=['GET'])
+@cross_origin()
 def getGeneralInfo(ra_name):
     success, data = manage.action_info(ra_name, out='json')
     if success:
@@ -39,6 +43,7 @@ def getGeneralInfo(ra_name):
 # GET RESULTS LIST of RA
 @app.route(f'{url_base}{version}results/<string:ra_name>',methods=['GET'])
 @app.route(f'{url_base}{version}results/<string:ra_name>/<int:step>',methods=['GET'])
+@cross_origin()
 def getResults(ra_name, step=None):
     success, data = results.action_results(ra_name, step, out='json')
     if success:
