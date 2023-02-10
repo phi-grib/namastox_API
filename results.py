@@ -19,3 +19,19 @@ def getResult(ra_name, result_id):
         return data
     else:
         return f'Failed to obtain result {result_id} for {ra_name}', 500
+    
+@app.route(f'{url_base}{version}pending_tasks/<ra_name>',methods=['GET'])
+def getPendingTasks(ra_name):
+    success, data = results.action_pendingTasks(ra_name)
+    if success:
+        return data
+    else:
+        return f'Failed to obtain pending tasks for {ra_name}', 500
+    
+@app.route(f'{url_base}{version}pending_task/<ra_name>/<string:result_id>',methods=['GET'])
+def getPendingTask(ra_name, result_id):
+    success, data = results.action_pendingTask(ra_name, result_id)
+    if success:
+        return data
+    else:
+        return f'Failed to obtain pending task {result_id} for {ra_name}', 500
