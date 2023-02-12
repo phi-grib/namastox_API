@@ -1,6 +1,14 @@
 from settings import *
 from namastox import manage
 
+# CREATE NEW RA
+@app.route(f'{url_base}{version}new/<string:ra_name>',methods=['GET'])
+@cross_origin()
+def newRA(ra_name):
+    success, data = manage.action_new(ra_name)
+    
+    return data if success else (f'Failed to create new RA {ra_name}', 500)
+
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
 @cross_origin()
