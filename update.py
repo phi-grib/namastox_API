@@ -11,7 +11,7 @@ def updateGeneralInfo(ra_name):
     input_dict = json.loads(input_string)
     success, data = update.action_update_general_info(ra_name, {'general':input_dict})
     if success:
-        return data
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
         return f'Failed to update General Info for {ra_name} with error: {data}', 500
 
@@ -24,6 +24,6 @@ def updateResult(ra_name, step=None):
     input_dict = json.loads(input_string)
     success, data = update.action_update_result(ra_name, step, {'result':[input_dict]})
     if success:
-        return data
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
         return f'Failed to update Result for {ra_name} step {step} with error: {data}', 500
