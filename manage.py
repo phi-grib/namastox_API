@@ -1,13 +1,6 @@
 from settings import *
 from namastox import manage
-
-# CREATE NEW RA
-@app.route(f'{url_base}{version}new/<string:ra_name>',methods=['GET'])
-@cross_origin()
-def newRA(ra_name):
-    success, data = manage.action_new(ra_name)
-    
-    return data if success else (f'Failed to create new RA {ra_name}', 500)
+import json
 
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
@@ -33,4 +26,24 @@ def getGeneralInfo(ra_name):
     if success:
         return data
     else:
-        return f'Failed to obtain general info for {ra_name}', 500
+        return json.dumps({f'Failed to obtain general infor for {ra_name}, with error {data}'}), 500, {'ContentType':'application/json'} 
+
+# PUT NEW RA
+@app.route(f'{url_base}{version}new/<string:ra_name>',methods=['PUT'])
+@cross_origin()
+def putNew(ra_name):
+    success, data = manage.action_new(ra_name)
+    if success:
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps({f'Failed to create new RA {ra_name}, with error {data}'}), 500, {'ContentType':'application/json'} 
+
+# PUT DELETE RA
+@app.route(f'{url_base}{version}delete/<string:ra_name>',methods=['PUT'])
+@cross_origin()
+def putKill(ra_name):
+    success, data = manage.action_kill(ra_name)
+    if success:
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps({f'Failed to delete RA {ra_name}, with error {data}'}), 500, {'ContentType':'application/json'} 
