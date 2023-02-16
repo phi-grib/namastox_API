@@ -1,5 +1,6 @@
 from settings import *
 from namastox import status
+import json
 
 # GET STATUS of RA
 @app.route(f'{url_base}{version}status/<string:ra_name>',methods=['GET'])
@@ -10,4 +11,4 @@ def getStatus(ra_name, step=None):
     if success:
         return data
     else:
-        return f'Failed to obtain status for {ra_name} {step}', 500
+        return json.dumps(f'Failed to obtain status for {ra_name} with error: {data}'), 500, {'ContentType':'application/json'} 

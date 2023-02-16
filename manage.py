@@ -40,10 +40,13 @@ def putNew(ra_name):
 
 # PUT DELETE RA
 @app.route(f'{url_base}{version}delete/<string:ra_name>',methods=['PUT'])
+@app.route(f'{url_base}{version}delete/<string:ra_name>/<int:step>',methods=['PUT'])
 @cross_origin()
-def putKill(ra_name):
-    success, data = manage.action_kill(ra_name)
+def putKill(ra_name, step=None):
+    success, data = manage.action_kill(ra_name, step)
+
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
-        return json.dumps({f'Failed to delete RA {ra_name}, with error {data}'}), 500, {'ContentType':'application/json'} 
+        # return (f'failed for {ra_name}', 500)
+        return json.dumps(f'Failed to delete RA {ra_name}, with error {data}'), 500, {'ContentType':'application/json'} 

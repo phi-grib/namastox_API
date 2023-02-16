@@ -13,7 +13,7 @@ def updateGeneralInfo(ra_name):
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
-        return f'Failed to update General Info for {ra_name} with error: {data}', 500
+        return json.dumps(f'Failed to update General Info for {ra_name} with error: {data}'), 500, {'ContentType':'application/json'} 
 
 # PUT RESULT
 @app.route(f'{url_base}{version}result/<string:ra_name>',methods=['PUT'])
@@ -26,4 +26,4 @@ def updateResult(ra_name, step=None):
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
-        return f'Failed to update Result for {ra_name} step {step} with error: {data}', 500
+        return json.dumps(f'Failed to update Result for {ra_name} with error: {data}'), 500, {'ContentType':'application/json'} 
