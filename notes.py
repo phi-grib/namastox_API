@@ -1,5 +1,6 @@
 from settings import *
 from namastox import notes
+import json
 
 # GET NOTES LIST of RA
 @app.route(f'{url_base}{version}notes/<string:ra_name>',methods=['GET'])
