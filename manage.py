@@ -88,12 +88,9 @@ def putLink(ra_name):
 @cross_origin()
 def getLink(ra_name, link_name):
 
-    success, results = manage.action_get_link(ra_name, link_name)
-
+    success, repo_path = manage.getRepositoryPath (ra_name)
     if success:
-        return send_file(link_name, mimetype=None, as_attachment=False, 
-                  download_name=None, conditional=True, etag=True, last_modified=None, max_age=None)
-
-        # return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+        link_file = os.path.join (repo_path, link_name)
+        return send_file(link_file, as_attachment=True)
     else:
-        return json.dumps(f'Failed to get link {link_name}, with error {response}'), 500, {'ContentType':'application/json'} 
+        return json.dumps(f'Failed to get link {link_name}, with error {repo_path}'), 500, {'ContentType':'application/json'} 
