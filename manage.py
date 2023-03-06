@@ -94,3 +94,13 @@ def getLink(ra_name, link_name):
         return send_file(link_file, as_attachment=True)
     else:
         return json.dumps(f'Failed to get link {link_name}, with error {repo_path}'), 500, {'ContentType':'application/json'} 
+
+# GET LINK
+@app.route(f'{url_base}{version}workflow/<string:ra_name>',methods=['GET'])
+@cross_origin()
+def getWorkflow(ra_name):
+    success, workflow_graph = manage.getWorkflow (ra_name)
+    if success:
+        return json.dumps({'success':True, 'result': workflow_graph}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to get workflow for {ra_name}, with error {workflow_graph}'), 500, {'ContentType':'application/json'} 
