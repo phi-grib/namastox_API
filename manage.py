@@ -95,7 +95,7 @@ def getLink(ra_name, link_name):
     else:
         return json.dumps(f'Failed to get link {link_name}, with error {repo_path}'), 500, {'ContentType':'application/json'} 
 
-# GET LINK
+# GET WORKFLOW DEFINITION
 @app.route(f'{url_base}{version}workflow/<string:ra_name>',methods=['GET'])
 @cross_origin()
 def getWorkflow(ra_name):
@@ -104,3 +104,17 @@ def getWorkflow(ra_name):
         return json.dumps({'success':True, 'result': workflow_graph}), 200, {'ContentType':'application/json'} 
     else:
         return json.dumps(f'Failed to get workflow for {ra_name}, with error {workflow_graph}'), 500, {'ContentType':'application/json'} 
+
+# GET SUBSTANCE LIST
+@app.route(f'{url_base}{version}substances',methods=['GET'])
+@cross_origin()
+def convertSubstances():
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
+    file = request.files['file']
+    success, substances = manage.convertSubstances(file)
+    if success:
+        return json.dumps({'success':True, 'result': substances}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to convert substances with error {substances}'), 500, {'ContentType':'application/json'} 
