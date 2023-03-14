@@ -106,7 +106,7 @@ def getWorkflow(ra_name):
         return json.dumps(f'Failed to get workflow for {ra_name}, with error {workflow_graph}'), 500, {'ContentType':'application/json'} 
 
 # GET SUBSTANCE LIST
-@app.route(f'{url_base}{version}substances',methods=['GET'])
+@app.route(f'{url_base}{version}substances',methods=['PUT'])
 @cross_origin()
 def convertSubstances():
     # check if the post request has the file part
