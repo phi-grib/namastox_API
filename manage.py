@@ -2,6 +2,8 @@ from settings import *
 from namastox import manage
 import json
 import os
+import tempfile
+import shutil
 from werkzeug.utils import secure_filename
 
 # GET LIST of RA
@@ -113,7 +115,12 @@ def convertSubstances():
     if 'file' not in request.files:
         return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
     file = request.files['file']
-    success, substances = manage.convertSubstances(file)
+    filename = file.filename
+    tempdirname = tempfile.mkdtemp()
+    structure_path = os.path.join(tempdirname, filename)
+    file.save(structure_path)
+    success, substances = manage.convertSubstances(structure_path)
+    shutil.rmtree(tempdirname)
     if success:
         return json.dumps({'success':True, 'result': substances}), 200, {'ContentType':'application/json'} 
     else:
