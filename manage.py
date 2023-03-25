@@ -115,12 +115,18 @@ def convertSubstances():
     if 'file' not in request.files:
         return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
     file = request.files['file']
-    filename = file.filename
+
+    # copy the file to a temporary file in the backend 
     tempdirname = tempfile.mkdtemp()
-    structure_path = os.path.join(tempdirname, filename)
+    structure_path = os.path.join(tempdirname, file.filename)
     file.save(structure_path)
+
+    # now call an endpoint which returns a JSON with the structure characteristics
     success, substances = manage.convertSubstances(structure_path)
+
+    # remove the temp dir
     shutil.rmtree(tempdirname)
+    
     if success:
         return json.dumps({'success':True, 'result': substances}), 200, {'ContentType':'application/json'} 
     else:
