@@ -55,9 +55,13 @@ def putKill(ra_name, step=None):
         # return (f'failed for {ra_name}', 500)
         return json.dumps(f'Failed to delete RA {ra_name}, with error {data}'), 500, {'ContentType':'application/json'} 
 
-def allowed_file(filename):
+def allowed_attachment(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def allowed_structure(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_STRUCTURE_EXTENSIONS
 
 # PUT LINK, call this to send a link from the GUI to upload to the backend (RA repository)
 @app.route(f'{url_base}{version}link/<string:ra_name>',methods=['POST'])
@@ -74,7 +78,7 @@ def putLink(ra_name):
     if file.filename == '':
         return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
     
-    if file and allowed_file(file.filename):
+    if file and allowed_attachment(file.filename):
         filename = secure_filename(file.filename)
         success, data = manage.getRepositoryPath (ra_name)
         if not success:
@@ -117,17 +121,21 @@ def convertSubstances():
         return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
     file = request.files['file']
 
-    # copy the file to a temporary file in the backend 
-    tempdirname = tempfile.mkdtemp()
-    structure_path = os.path.join(tempdirname, file.filename)
-    file.save(structure_path)
+    if file and allowed_structure(file.filename):
+        # copy the file to a temporary file in the backend 
+        tempdirname = tempfile.mkdtemp()
+        filename = secure_filename(file.filename)
+        structure_path = os.path.join(tempdirname, filename)
+        file.save(structure_path)
 
-    # now call an endpoint which returns a JSON with the structure characteristics
-    success, substances = manage.convertSubstances(structure_path)
+        # now call an endpoint which returns a JSON with the structure characteristics
+        success, substances = manage.convertSubstances(structure_path)
 
-    # remove the temp dir
-    shutil.rmtree(tempdirname)
-    
+        # remove the temp dir
+        shutil.rmtree(tempdirname)
+    else:
+        return json.dumps(f'Failed to convert substances. Format unsuported'), 500, {'ContentType':'application/json'} 
+
     if success:
         return json.dumps({'success':True, 'result': substances}), 200, {'ContentType':'application/json'} 
     else:
