@@ -99,9 +99,10 @@ def getLink(ra_name, link_name):
 
 # GET WORKFLOW DEFINITION
 @app.route(f'{url_base}{version}workflow/<string:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}workflow/<string:ra_name>/<int:step>',methods=['GET'])
 @cross_origin()
-def getWorkflow(ra_name):
-    success, workflow_graph = manage.getWorkflow (ra_name)
+def getWorkflow(ra_name, step=None):
+    success, workflow_graph = manage.getWorkflow (ra_name, step)
     if success:
         return json.dumps({'success':True, 'result': workflow_graph}), 200, {'ContentType':'application/json'} 
     else:
