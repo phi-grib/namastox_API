@@ -63,6 +63,10 @@ def allowed_structure(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_STRUCTURE_EXTENSIONS
 
+def allowed_workflow(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_WORKFLOW_EXTENSIONS
+
 # PUT LINK, call this to send a link from the GUI to upload to the backend (RA repository)
 @app.route(f'{url_base}{version}link/<string:ra_name>',methods=['POST'])
 @cross_origin()
@@ -111,6 +115,32 @@ def getWorkflow(ra_name, step=None):
         return json.dumps({'success':True, 'result': workflow_graph}), 200, {'ContentType':'application/json'} 
     else:
         return json.dumps(f'Failed to get workflow for {ra_name}, with error {workflow_graph}'), 500, {'ContentType':'application/json'} 
+
+# PUT CUSTOM WORKFLOW DEFINITION
+@app.route(f'{url_base}{version}custom_workflow/<string:ra_name>',methods=['PUT'])
+@cross_origin()
+def putCustomWorkflow(ra_name, step=None):
+
+ # check if the post request has the file part
+    if 'file' not in request.files:
+        return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
+    
+    file = request.files['file']
+    # If the user does not select a file, the browser submits an
+    # empty file without a filename.
+    if file.filename == '':
+        return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
+    
+    if file and allowed_workflow(file.filename):
+        filename = secure_filename(file.filename)
+        success, ra_path = manage.getPath (ra_name)
+        if not success:
+            return json.dumps(f'Failed to upload file, unable to access repository'), 500, {'ContentType':'application/json'} 
+        file.save(os.path.join(ra_path, filename))
+        # success, result = manage.setCustomWorkflow (ra_name, filename)
+    else:
+        return json.dumps(f'Failed to upload file, no file'), 500, {'ContentType':'application/json'} 
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 # GET SUBSTANCE LIST
 @app.route(f'{url_base}{version}substances',methods=['PUT'])
