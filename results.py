@@ -21,6 +21,15 @@ def getResult(ra_name, result_id):
     else:
         return json.dumps(f'Failed to obtain result {result_id} for {ra_name} with error: {data}'), 500, {'ContentType':'application/json'} 
     
+@app.route(f'{url_base}{version}task/<string:ra_name>/<string:result_id>',methods=['GET'])
+def getTask(ra_name, result_id):
+
+    success, data = results.action_task(ra_name, result_id)
+    if success:
+        return data
+    else:
+        return json.dumps(f'Failed to obtain task {result_id} for {ra_name} with error: {data}'), 500, {'ContentType':'application/json'} 
+
 @app.route(f'{url_base}{version}pending_tasks/<ra_name>',methods=['GET'])
 def getPendingTasks(ra_name):
     success, data = results.action_pendingTasks(ra_name)
