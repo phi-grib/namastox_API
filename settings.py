@@ -1,11 +1,10 @@
-from flask import jsonify
+from flask import Flask
+from flask import flash, jsonify, request, redirect, url_for, send_file
 from flask_cors import CORS, cross_origin
-from flask_api import FlaskAPI
-from flask import flash, request, redirect, url_for, send_file
 
 UPLOAD_FOLDER = './'
 
-app = FlaskAPI(__name__)
+app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SECRET_KEY'] = 'namastox misteries'

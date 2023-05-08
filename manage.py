@@ -89,6 +89,7 @@ def putLink(ra_name):
     
     if file and allowed_attachment(file.filename):
         filename = secure_filename(file.filename)
+        filename = filename.replace (' ','_')
         success, data = manage.getRepositoryPath (ra_name)
         if not success:
             return json.dumps(f'Failed to upload file, unable to access repository'), 500, {'ContentType':'application/json'} 
@@ -105,7 +106,9 @@ def getLink(ra_name, link_name):
 
     success, repo_path = manage.getRepositoryPath (ra_name)
     if success:
+        link_name = link_name.replace (' ','_')
         link_file = os.path.join (repo_path, link_name)
+        print ('//////////////////////////////////', link_file)
         return send_file(link_file, as_attachment=True)
     else:
         return json.dumps(f'Failed to get link {link_name}, with error {repo_path}'), 500, {'ContentType':'application/json'} 
@@ -126,7 +129,7 @@ def getWorkflow(ra_name, step=None):
 @cross_origin()
 def putCustomWorkflow(ra_name, step=None):
 
- # check if the post request has the file part
+    # check if the post request has the file part
     if 'file' not in request.files:
         return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
     
