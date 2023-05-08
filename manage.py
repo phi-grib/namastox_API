@@ -67,6 +67,11 @@ def allowed_workflow(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_WORKFLOW_EXTENSIONS
 
+def allowed_import(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_IMPORT_EXTENSIONS
+
+
 # PUT LINK, call this to send a link from the GUI to upload to the backend (RA repository)
 @app.route(f'{url_base}{version}link/<string:ra_name>',methods=['POST'])
 @cross_origin()
@@ -170,3 +175,50 @@ def convertSubstances():
         return json.dumps({'success':True, 'result': substances}), 200, {'ContentType':'application/json'} 
     else:
         return json.dumps(f'Failed to convert substances with error {substances}'), 500, {'ContentType':'application/json'} 
+
+# EXPORT RA
+@app.route(f'{url_base}{version}export/<string:ra_name>/',methods=['GET'])
+@cross_origin()
+def exportRA(ra_name):
+    success, export_file = manage.exportRA (ra_name)
+    if success:
+        return send_file(export_file, as_attachment=True)
+    else:
+        return json.dumps(f'Failed to export {ra_name}'), 500, {'ContentType':'application/json'} 
+    
+# IMPORT RA
+@app.route(f'{url_base}{version}import/',methods=['POST'])
+@cross_origin()
+def importRA():
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
+    
+    file = request.files['file']
+    # If the user does not select a file, the browser submits an
+    # empty file without a filename.
+    if file.filename == '':
+        return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
+    
+    if file and allowed_import(file.filename):
+
+        # copy the file to a temporary file in the backend 
+        tempdirname = tempfile.mkdtemp()
+        filename = secure_filename(file.filename)
+        import_path = os.path.join(tempdirname, filename)
+        file.save(import_path)
+
+        # call import with local path pointing to temp dir
+        success, message = manage.importRA (import_path)
+
+        # remove the temp dir
+        shutil.rmtree(tempdirname)
+
+        if not success:
+            return json.dumps(f'Failed to import file {import_path} with error: {message}'), 500, {'ContentType':'application/json'} 
+
+    if success:
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to import {filename}'), 500, {'ContentType':'application/json'} 
+   

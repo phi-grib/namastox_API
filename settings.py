@@ -16,3 +16,4 @@ version = "v1/"
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg'}
 ALLOWED_STRUCTURE_EXTENSIONS = {'sdf', 'mol', 'tsv', 'csv'}
 ALLOWED_WORKFLOW_EXTENSIONS = {'csv'}
+ALLOWED_IMPORT_EXTENSIONS = {'tgz'}
