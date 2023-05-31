@@ -1,5 +1,6 @@
 from settings import *
 from namastox import manage
+
 import json
 import os
 import tempfile
@@ -108,7 +109,6 @@ def getLink(ra_name, link_name):
     if success:
         link_name = link_name.replace (' ','_')
         link_file = os.path.join (repo_path, link_name)
-        print ('//////////////////////////////////', link_file)
         return send_file(link_file, as_attachment=True)
     else:
         return json.dumps(f'Failed to get link {link_name}, with error {repo_path}'), 500, {'ContentType':'application/json'} 
@@ -160,6 +160,7 @@ def convertSubstances():
     file = request.files['file']
 
     if file and allowed_structure(file.filename):
+        
         # copy the file to a temporary file in the backend 
         tempdirname = tempfile.mkdtemp()
         filename = secure_filename(file.filename)
@@ -171,6 +172,7 @@ def convertSubstances():
 
         # remove the temp dir
         shutil.rmtree(tempdirname)
+
     else:
         return json.dumps(f'Failed to convert substances. Format unsuported'), 500, {'ContentType':'application/json'} 
 
@@ -224,4 +226,28 @@ def importRA():
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
         return json.dumps(f'Failed to import {filename}'), 500, {'ContentType':'application/json'} 
+    
+# RETURN LIST OF LOCALLY ACCESSIBLE MODELS
+@app.route(f'{url_base}{version}models/',methods=['GET'])
+@cross_origin()
+def localModels():
+    success, models = manage.getLocalModels()
+
+    if success :
+        return models, 200, {'ContentType':'application/json'}
+    else:
+        return json.dumps(f'Failed to get list of local models'), 500, {'ContentType':'application/json'} 
+    
+# PREDICT RA SUBSTANCE USING LIST OF MODELS
+@app.route(f'{url_base}{version}predict/<string:ra_name>',methods=['GET'])
+@cross_origin()
+def predict(ra_name):
+
+    success, results = manage.predictLocalModels(ra_name, ['AMPA','AMPA'], [1,2])
+    if success :
+        return results, 200, {'ContentType':'application/json'}
+    else:
+        return json.dumps(f'Failed to predict substance of {ra_name}'), 500, {'ContentType':'application/json'} 
+
+    
    
