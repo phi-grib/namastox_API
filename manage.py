@@ -243,11 +243,17 @@ def localModels():
 @cross_origin()
 def predict(ra_name):
 
-    success, results = manage.predictLocalModels(ra_name, ['AMPA','AMPA'], [1,2])
-    if success :
-        return results, 200, {'ContentType':'application/json'}
-    else:
-        return json.dumps(f'Failed to predict substance of {ra_name}'), 500, {'ContentType':'application/json'} 
+    success, results = manage.predictLocalModels(ra_name, ['AMPA','Kainate','NADH'], [1,1,1])
+
+    if success:
+        # print (results)
+        success, results = manage.getLocalModelPrediction()
+
+        if success :
+            return results, 200, {'ContentType':'application/json'}
+        
+
+    return json.dumps(f'Failed to predict substance of {ra_name}'), 500, {'ContentType':'application/json'} 
 
     
    
