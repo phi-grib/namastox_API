@@ -243,7 +243,22 @@ def localModels():
 @cross_origin()
 def predict(ra_name):
 
-    success, results = manage.predictLocalModels(ra_name, ['AMPA','Kainate','NADH'], [1,1,1])
+    models = []
+    versions = []
+
+    if 'models' in request.form:
+        models_raw = request.form['models'].split(',')
+        models = [ i.strip() for i in models_raw]
+    
+    if 'versions' in request.form:
+        versions_raw = request.form['versions'].split(',')
+        versions = [ int(i) for i in versions_raw]
+
+    if len(models)==0 or len(versions)==0 or len(versions)!=len(models):
+        return json.dumps(f'Incomplete model information in prediction call'), 500, {'ContentType':'application/json'} 
+
+    # success, results = manage.predictLocalModels(ra_name, ['AMPA','Kainate','NADH'], [1,1,1])
+    success, results = manage.predictLocalModels(ra_name, models, versions)
 
     if success:
         # print (results)
