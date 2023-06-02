@@ -239,7 +239,7 @@ def localModels():
         return json.dumps(f'Failed to get list of local models'), 500, {'ContentType':'application/json'} 
     
 # PREDICT RA SUBSTANCE USING LIST OF MODELS
-@app.route(f'{url_base}{version}predict/<string:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}predict/<string:ra_name>',methods=['PUT'])
 @cross_origin()
 def predict(ra_name):
 
