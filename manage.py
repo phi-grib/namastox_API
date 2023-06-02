@@ -270,5 +270,16 @@ def predict(ra_name):
 
     return json.dumps(f'Failed to predict substance of {ra_name}'), 500, {'ContentType':'application/json'} 
 
+# PREDICT RA SUBSTANCE USING LIST OF MODELS
+@app.route(f'{url_base}{version}inform/<string:molname>',methods=['GET'])
+@cross_origin()
+def inform(molname):
+    success, results = manage.getInfoStructure(molname)
+
+    if success:
+        return results, 200, {'ContentType':'application/json'}
+
+    return json.dumps(f'Failed to inform mol {molname}'), 500, {'ContentType':'application/json'} 
+
     
    
