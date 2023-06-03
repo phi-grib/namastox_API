@@ -278,6 +278,46 @@ def inform(molname=None, casrn=None):
     success, results = manage.getInfoStructure(molname, casrn)
 
     if success:
+        # the answer contains an structure like this:
+        #[
+        # {
+        #     "activeAssays": 0,
+        #     "averageMass": 68.075,
+        #     "casrn": "110-00-9",
+        #     "compoundId": 646,
+        #     "cpdataCount": 2,
+        #     "dtxcid": "DTXCID20646",
+        #     "dtxsid": "DTXSID6020646",
+        #     "genericSubstanceId": 20646,
+        #     "hasStructureImage": true,
+        #     "id": "FD7EFD3AFDFD6E00FD610A4EFD5C29FDFD2A3D3FFD4E3DFD3925FD39E7FD",
+        #     "inchiKey": "YLQBMQCUIZJEEH-UHFFFAOYSA-N",
+        #     "inchiString": "InChI=1S/C4H4O/c1-2-4-5-3-1/h1-4H\n",
+        #     "isotope": 0,
+        #     "iupacName": "Furan",
+        #     "molFormula": "C4H4O",
+        #     "monoisotopicMass": 68.026214749,
+        #     "multicomponent": 0,
+        #     "percentAssays": 0,
+        #     "preferredName": "Furan",
+        #     "pubchemCid": 8029,
+        #     "pubchemCount": 280,
+        #     "pubmedCount": 919,
+        #     "qcLevel": 1,
+        #     "qcLevelDesc": "Level 1: Expert curated, highest confidence in accuracy and consistency of unique chemical identifiers",
+        #     "relatedStructureCount": 1,
+        #     "relatedSubstanceCount": 1,
+        #     "selected": null,
+        #     "smiles": "O1C=CC=C1",
+        #     "sourcesCount": 230,
+        #     "stereo": 0,
+        #     "totalAssays": 235,
+        #     "toxcastSelect": "0/235"
+        # }
+        #]
+        # the dtxsid can be used to present a link like this
+        # https://comptox.epa.gov/dashboard/chemical/details/DTXSID4041280
+
         return results, 200, {'ContentType':'application/json'}
 
     return json.dumps(f'Failed to inform mol {molname}'), 500, {'ContentType':'application/json'} 
