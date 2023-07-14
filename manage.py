@@ -197,13 +197,13 @@ def exportRA(ra_name):
 def importRA():
     # check if the post request has the file part
     if 'file' not in request.files:
-        return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
+        return json.dumps({"success": False, "error": "Failed to upload file, no file information found"}), 500, {'ContentType':'application/json'} 
     
     file = request.files['file']
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
-        return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
+        return json.dumps({"success": False, "error": "Failed to upload file, empty filename"}), 500, {'ContentType':'application/json'} 
     
     if file and allowed_import(file.filename):
 
