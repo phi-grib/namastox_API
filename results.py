@@ -49,3 +49,13 @@ def getPendingTask(ra_name, result_id):
         return data
     else:
         return json.dumps(f'Failed to obtain pending task {result_id} for {ra_name} with error: {data}'), 500, {'ContentType':'application/json'} 
+
+
+@app.route(f'{url_base}{version}upstream_tasks/<ra_name>/<string:result_id>',methods=['GET'])
+@cross_origin()
+def getUpstreamTasks(ra_name, result_id):
+    success, data = results.action_upstreamTasks(ra_name, result_id)
+    if success:
+        return data
+    else:
+        return json.dumps(f'Failed to obtain upstream tasks of {result_id} for {ra_name} with error: {data}'), 500, {'ContentType':'application/json'} 
