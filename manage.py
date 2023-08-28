@@ -12,16 +12,22 @@ from werkzeug.utils import secure_filename
 @cross_origin()
 def getList():
     success, data = manage.action_list(out='json')
+    if success:
+        return data
+    else:
+        return json.dumps(f'Failed to obtain list of RAs'), 500, {'ContentType':'application/json'} 
     
-    return data if success else ('Failed to obtain list of RA', 500)
-
 # GET LIST of steps
 @app.route(f'{url_base}{version}steps/<string:ra_name>',methods=['GET'])
 @cross_origin()
 def getSteps(ra_name):
     success, data = manage.action_steps(ra_name, out='json')
     
-    return data if success else ('Failed to obtain steps for RA', 500)
+    if success:
+        return data
+    else:
+        return json.dumps(f'Failed to obtain steps for RA {ra_name}'), 500, {'ContentType':'application/json'} 
+
 
 # GET GENERAL INFO RA
 @app.route(f'{url_base}{version}general_info/<string:ra_name>',methods=['GET'])
@@ -31,7 +37,7 @@ def getGeneralInfo(ra_name):
     if success:
         return data
     else:
-        return json.dumps({f'Failed to obtain general infor for {ra_name}, with error {data}'}), 500, {'ContentType':'application/json'} 
+        return json.dumps(f'Failed to obtain general infor for {ra_name}, with error {data}'), 500, {'ContentType':'application/json'} 
 
 # PUT NEW RA
 @app.route(f'{url_base}{version}new/<string:ra_name>',methods=['PUT'])
@@ -41,7 +47,7 @@ def putNew(ra_name):
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
-        return json.dumps({f'Failed to create new RA {ra_name}, with error {data}'}), 500, {'ContentType':'application/json'} 
+        return json.dumps(f'Failed to create new RA {ra_name}, with error {data}'), 500, {'ContentType':'application/json'} 
 
 # PUT DELETE RA
 @app.route(f'{url_base}{version}delete/<string:ra_name>',methods=['PUT'])
@@ -137,7 +143,7 @@ def putCustomWorkflow(ra_name, step=None):
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
-        return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
+        return json.dumps(f'Failed to upload file, empty file name'), 500, {'ContentType':'application/json'} 
     
     if file and allowed_workflow(file.filename):
         filename = secure_filename(file.filename)
@@ -266,16 +272,15 @@ def predict(ra_name):
     # success, results = manage.predictLocalModels(ra_name, ['AMPA','Kainate','NADH'], [1,1,1])
 
     success, results = manage.predictLocalModels(ra_name, models, versions)
-
     if success:
-        # print (results)
         success, results = manage.getLocalModelPrediction()
-
         if success :
             return results, 200, {'ContentType':'application/json'}
+        else:
+            return json.dumps(f'Predictions not completed for substance of {ra_name}'), 500, {'ContentType':'application/json'} 
         
-
-    return json.dumps(f'Failed to predict substance of {ra_name}'), 500, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to predict substance of {ra_name}'), 500, {'ContentType':'application/json'} 
 
 # PREDICT RA SUBSTANCE USING LIST OF MODELS
 @app.route(f'{url_base}{version}inform_name/<string:molname>',methods=['GET'])
@@ -326,8 +331,8 @@ def inform(molname=None, casrn=None):
         # https://comptox.epa.gov/dashboard/chemical/details/DTXSID4041280
 
         return results, 200, {'ContentType':'application/json'}
-
-    return json.dumps(f'Failed to inform mol {molname}'), 500, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to inform mol {molname}'), 500, {'ContentType':'application/json'} 
 
     
    
