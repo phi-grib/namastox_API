@@ -247,17 +247,24 @@ def predict(ra_name):
     versions = []
 
     if 'models' in request.form:
-        models_raw = request.form['models'].split(',')
-        models = [ i.strip() for i in models_raw]
+        models_raw = request.form['models'].strip().split(',')
+        models = []
+        for i in models_raw:
+            if i!='':
+                models.append(i)
     
     if 'versions' in request.form:
-        versions_raw = request.form['versions'].split(',')
-        versions = [ int(i) for i in versions_raw]
+        versions_raw = request.form['versions'].strip().split(',')
+        versions = []
+        for i in versions_raw:
+            if i!='':
+                versions.append(int(i))
 
     if len(models)==0 or len(versions)==0 or len(versions)!=len(models):
         return json.dumps(f'Incomplete model information in prediction call'), 500, {'ContentType':'application/json'} 
 
     # success, results = manage.predictLocalModels(ra_name, ['AMPA','Kainate','NADH'], [1,1,1])
+
     success, results = manage.predictLocalModels(ra_name, models, versions)
 
     if success:
