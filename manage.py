@@ -332,7 +332,4 @@ def inform(molname=None, casrn=None):
 
         return results, 200, {'ContentType':'application/json'}
     else:
-        return json.dumps(f'Failed to inform mol {molname}'), 500, {'ContentType':'application/json'} 
-
-    
-   
+        return json.dumps(f'Failed to inform mol {molname} with error {results}'), 500, {'ContentType':'application/json'} 
