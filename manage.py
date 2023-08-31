@@ -244,6 +244,17 @@ def localModels():
     else:
         return json.dumps(f'Failed to get list of local models'), 500, {'ContentType':'application/json'} 
     
+# RETURN DOCUMENTATION FOR A MODELS
+@app.route(f'{url_base}{version}model_documentation/<string:model_name>/<int:model_ver>',methods=['GET'])
+@cross_origin()
+def modelDocumentation(model_name, model_ver):
+    success, models = manage.getModelDocumentation(model_name,model_ver)
+
+    if success :
+        return models, 200, {'ContentType':'application/json'}
+    else:
+        return json.dumps(f'Failed to get documentation for model {model_name} ver {model_ver}'), 500, {'ContentType':'application/json'} 
+    
 # PREDICT RA SUBSTANCE USING LIST OF MODELS
 @app.route(f'{url_base}{version}predict/<string:ra_name>',methods=['PUT'])
 @cross_origin()
@@ -268,8 +279,6 @@ def predict(ra_name):
 
     if len(models)==0 or len(versions)==0 or len(versions)!=len(models):
         return json.dumps(f'Incomplete model information in prediction call'), 500, {'ContentType':'application/json'} 
-
-    # success, results = manage.predictLocalModels(ra_name, ['AMPA','Kainate','NADH'], [1,1,1])
 
     success, results = manage.predictLocalModels(ra_name, models, versions)
     if success:
