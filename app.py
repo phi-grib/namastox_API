@@ -4,6 +4,7 @@ from results import *
 from status import *
 from notes import *
 from update import *
+from report import *
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
