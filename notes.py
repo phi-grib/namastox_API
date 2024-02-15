@@ -19,3 +19,22 @@ def getNote(ra_name, note_id):
         return data
     else:
         return f'Failed to obtain note {note_id} for {ra_name}', 500
+    
+@app.route(f'{url_base}{version}note/<string:ra_name>',methods=['PUT'])
+def putNote(ra_name):
+
+    note = {}
+
+    if 'note' in request.form:
+        note['id'] = request.form['id']
+        note['title'] = request.form['title']
+        note['date'] = request.form['date']
+        note['text'] = request.form['text']
+    else:
+        note = {'id':'MY', 'title':'MYTITLE', 'date':'MYDATE', 'text': 'MYTEXT'}
+
+    success, data = notes.action_note_add(ra_name, note)
+    if success:
+        return data
+    else:
+        return f'Failed to add note to {ra_name}', 500
