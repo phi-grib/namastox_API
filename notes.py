@@ -23,8 +23,7 @@ def getNote(ra_name, note_id):
 @app.route(f'{url_base}{version}note/<string:ra_name>',methods=['PUT'])
 def putNote(ra_name):
     note = {}
-    if 'id' in request.form:
-        note['id'] = request.form['id']
+    if 'title' in request.form and 'date' in request.form and 'text' in request.form :
         note['title'] = request.form['title']
         note['date'] = request.form['date']
         note['text'] = request.form['text']
