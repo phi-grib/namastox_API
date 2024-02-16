@@ -8,17 +8,17 @@ import json
 def getNotes(ra_name, step=None):
     success, data = notes.action_notes(ra_name, step, out='json')
     if success:
-        return json.dumps(data)
+        return json.dumps(data), 200, {'ContentType':'application/json'} 
     else:
-        return f'Failed to obtain notes for {ra_name} {step}', 500
+        return json.dumps(f'Failed to obtain notes for {ra_name} {step}'), 500, {'ContentType':'application/json'} 
 
 @app.route(f'{url_base}{version}note/<string:ra_name>/<string:note_id>',methods=['GET'])
 def getNote(ra_name, note_id):
     success, data = notes.action_note(ra_name, note_id)
     if success:
-        return json.dumps(data)
+        return json.dumps(data), 200, {'ContentType':'application/json'} 
     else:
-        return f'Failed to obtain note {note_id} for {ra_name}', 500
+        return json.dumps(f'Failed to obtain note {note_id} for {ra_name}'), 500 , {'ContentType':'application/json'} 
     
 @app.route(f'{url_base}{version}note/<string:ra_name>',methods=['PUT'])
 def putNote(ra_name):
@@ -27,10 +27,10 @@ def putNote(ra_name):
         note['title'] = request.form['title']
         note['text'] = request.form['text']
     else:
-        return 'No note found', 500
+        return json.dumps('No note found'), 500, {'ContentType':'application/json'} 
 
     success, data = notes.action_note_add(ra_name, note)
     if success:
-        return data
+        return json.dumps(data), 200, {'ContentType':'application/json'} 
     else:
-        return f'Failed to add note to {ra_name}', 500
+        return json.dumps(f'Failed to add note to {ra_name}'), 500, {'ContentType':'application/json'} 
