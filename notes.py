@@ -34,3 +34,11 @@ def putNote(ra_name):
         return json.dumps(data), 200, {'ContentType':'application/json'} 
     else:
         return json.dumps(f'Failed to add note to {ra_name}'), 500, {'ContentType':'application/json'} 
+    
+@app.route(f'{url_base}{version}note/<string:ra_name>/<string:note_id>',methods=['DELETE'])
+def deleteNote(ra_name, note_id):
+    success, data = notes.action_note_delete(ra_name, note_id)
+    if success:
+        return json.dumps(data), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to delete note {note_id} note to {ra_name}'), 500, {'ContentType':'application/json'} 
