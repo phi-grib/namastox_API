@@ -1,5 +1,5 @@
 from settings import *
-from namastox import manage, report
+from namastox import manage
 
 import json
 import os
