@@ -1,8 +1,9 @@
 from settings import *
+import json
+import os
 from namastox import update
 from namastox import manage
 from flask import request
-import json, os
 from werkzeug.utils import secure_filename
 
 def allowed_attachment(filename):
@@ -21,6 +22,7 @@ def updateGeneralInfo(ra_name):
         file = request.files['custom_workflow_file']
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
+
         if file.filename == '':
             return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
         
