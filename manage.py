@@ -343,3 +343,32 @@ def inform(molname=None, casrn=None):
         return results, 200, {'ContentType':'application/json'}
     else:
         return json.dumps(f'Failed to inform mol {molname} with error {results}'), 500, {'ContentType':'application/json'} 
+
+# PUT TABLE
+@app.route(f'{url_base}{version}table/<string:ra_name>',methods=['POST'])
+@cross_origin()
+def putTable(ra_name):
+
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        return json.dumps(f'Failed to upload file, no file information found'), 500, {'ContentType':'application/json'} 
+    
+    file = request.files['file']
+    # If the user does not select a file, the browser submits an
+    # empty file without a filename.
+    if file.filename == '':
+        return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
+    
+    if file and allowed_attachment(file.filename):
+        filename = secure_filename(file.filename)
+        filename = filename.replace (' ','_')
+        success, data = manage.getRepositoryPath (ra_name)
+        if not success:
+            return json.dumps(f'Failed to upload file, unable to access repository'), 500, {'ContentType':'application/json'} 
+
+        file.save(os.path.join(data, filename))
+        manage.getTableContents(filename)
+
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to upload file, incorrect file or file type '), 500, {'ContentType':'application/json'} 
