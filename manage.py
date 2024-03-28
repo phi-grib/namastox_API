@@ -366,9 +366,10 @@ def putTable(ra_name):
         if not success:
             return json.dumps(f'Failed to upload file, unable to access repository'), 500, {'ContentType':'application/json'} 
 
-        file.save(os.path.join(data, filename))
-        manage.getTableContents(filename)
+        pathname = os.path.join(data, filename)
+        file.save(pathname)
+        success, values, uncertainties = manage.getTableContents(pathname)
 
-        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+        return json.dumps({'success':True, 'values': values, 'uncertainties': uncertainties}), 200, {'ContentType':'application/json'} 
     else:
-        return json.dumps(f'Failed to upload file, incorrect file or file type '), 500, {'ContentType':'application/json'} 
+        return json.dumps({'success:': False, 'error': f'Failed to upload file, incorrect file or file type '}), 500, {'ContentType':'application/json'} 
