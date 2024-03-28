@@ -369,7 +369,10 @@ def putTable(ra_name):
         pathname = os.path.join(data, filename)
         file.save(pathname)
         success, values, uncertainties = manage.getTableContents(pathname)
-
-        return json.dumps({'success':True, 'values': values, 'uncertainties': uncertainties}), 200, {'ContentType':'application/json'} 
+        if success:
+            return json.dumps({'success':True, 'values': values, 'uncertainties': uncertainties}), 200, {'ContentType':'application/json'} 
+        else:
+            return json.dumps({'success:': False, 'error': 'Failed to process the input file'}), 500, {'ContentType':'application/json'} 
+        
     else:
-        return json.dumps({'success:': False, 'error': f'Failed to upload file, incorrect file or file type '}), 500, {'ContentType':'application/json'} 
+        return json.dumps({'success:': False, 'error': 'Failed to upload file, incorrect file or file type'}), 500, {'ContentType':'application/json'} 
