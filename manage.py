@@ -357,7 +357,7 @@ def putTable(ra_name):
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
-        return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
+        return json.dumps(f'Failed to upload file, empty filename'), 500, {'ContentType':'application/json'} 
     
     if file and allowed_attachment(file.filename):
         filename = secure_filename(file.filename)
@@ -372,7 +372,7 @@ def putTable(ra_name):
         if success:
             return json.dumps({'success':True, 'values': values, 'uncertainties': uncertainties}), 200, {'ContentType':'application/json'} 
         else:
-            return json.dumps({'success:': False, 'error': 'Failed to process the input file'}), 500, {'ContentType':'application/json'} 
+            return json.dumps({'success:': False, 'error': f'{values} {uncertainties}'}), 500, {'ContentType':'application/json'} 
         
     else:
         return json.dumps({'success:': False, 'error': 'Failed to upload file, incorrect file or file type'}), 500, {'ContentType':'application/json'} 
