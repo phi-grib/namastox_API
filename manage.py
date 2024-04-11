@@ -233,6 +233,15 @@ def importRA():
     else:
         return json.dumps(f'Failed to import {filename}'), 500, {'ContentType':'application/json'} 
 
+# EXPORT ATTACHMENTS
+@app.route(f'{url_base}{version}attachments/<string:ra_name>/',methods=['GET'])
+@cross_origin()
+def attachmentsRA(ra_name):
+    success, attachments_file = manage.attachmentsRA (ra_name)
+    if success:
+        return send_file(attachments_file, as_attachment=True)
+    else:
+        return json.dumps(f'Failed to obtain attachments for {ra_name}'), 500, {'ContentType':'application/json'} 
     
 # RETURN LIST OF LOCALLY ACCESSIBLE MODELS
 @app.route(f'{url_base}{version}models/',methods=['GET'])
