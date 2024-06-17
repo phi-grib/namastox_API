@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknamastox_web=self.webpackChunknamastox_web||[]).push([[76],{321:(m,a,t)=>{t.d(a,{A:()=>i});var s=t(8844),e=t(7501);const i=n=>!(n=>(n=>{const{r,g:l,b:u}=e.A.parse(n),h=.2126*s.A.channel.toLinear(r)+.7152*s.A.channel.toLinear(l)+.0722*s.A.channel.toLinear(u);return s.A.lang.round(h)})(n)>=.5)(n)}}]);
