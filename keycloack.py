@@ -43,7 +43,8 @@ def loggedOut():
         abort(404)
     return app.send_static_file('index.html')
 
-
+#when the user starts the interface asks the backend if there is an open session or not. 
+#each session is individual per user
 @app.route(f'{url_base}{version}user_session/',methods=['GET'])
 @cross_origin()
 def getUsserSession():

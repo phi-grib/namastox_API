@@ -2,19 +2,30 @@ from flask import Flask
 from flask_cors import CORS, cross_origin
 from flask_session import Session  # Import Flask-Session
 from authlib.integrations.flask_client import OAuth
+import redis
 UPLOAD_FOLDER = './'
 
 app = Flask(__name__)
+#replace conf with environment variables
 appConf = {
     "OAUTH2_CLIENT_ID": "test_client",
-    "OAUTH2_CLIENT_SECRET": "sRM7WdUDTJZfWcDAH1tMNB5vlPDooSoS",
+    "OAUTH2_CLIENT_SECRET": "BdnfAiaUfr1pv9qOnnrHcgBBnmbxsfJ0",
     "OAUTH2_ISSUER": "http://localhost:8080/realms/namastox",
     "FLASK_SECRET": "ALongRandomlyGeneratedString",
-    "FLASK_PORT": 5000
+    "FLASK_PORT": 5000,
+    "REDIS_URL": "redis://localhost:6379/0"
 }
 app.secret_key = appConf.get("FLASK_SECRET")
-# Configuration for storing sessions in the file system
-app.config['SESSION_TYPE'] = 'filesystem'
+# CONFIGURATION DEVELOPMENT
+# app.config['SESSION_TYPE'] = 'filesystem'
+
+#CONFIGURATION DEPLOYMENT
+app.config['SESSION_TYPE'] = 'redis'
+#Configure session cookies to be secure and HTTP-only. This helps prevent attacks such as XSS.
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_REDIS'] = redis.from_url(appConf.get("REDIS_URL"))
+
 Session(app)  # Initialize Flask-Session
 cors = CORS(app)
 oauth = OAuth(app)
