@@ -26,7 +26,7 @@ def logout():
     id_token = session["user"]["id_token"]
     session.clear()
     return redirect(
-        appConf.get("OAUTH2_ISSUER")
+        f'{os.getenv("KEYCLOAK_URL")}/realms/{os.getenv("KEYCLOAK_REALM")}'
         + "/protocol/openid-connect/logout?"
          + urlencode(
              {

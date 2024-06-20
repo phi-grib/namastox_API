@@ -3,16 +3,17 @@ from flask_cors import CORS, cross_origin
 from flask_session import Session  # Import Flask-Session
 from authlib.integrations.flask_client import OAuth
 import redis
+import os
+from dotenv import load_dotenv
 UPLOAD_FOLDER = './'
 
 app = Flask(__name__)
 #replace conf with environment variables
+# Cargar variables de entorno desde el archivo .env
+load_dotenv()
+
 appConf = {
-    "OAUTH2_CLIENT_ID": "test_client",
-    "OAUTH2_CLIENT_SECRET": "BdnfAiaUfr1pv9qOnnrHcgBBnmbxsfJ0",
-    "OAUTH2_ISSUER": "http://localhost:8080/realms/namastox",
     "FLASK_SECRET": "ALongRandomlyGeneratedString",
-    "FLASK_PORT": 5000,
     "REDIS_URL": "redis://localhost:6379/0"
 }
 app.secret_key = appConf.get("FLASK_SECRET")
@@ -31,12 +32,12 @@ cors = CORS(app)
 oauth = OAuth(app)
 oauth.register(
     "myApp",
-    client_id=appConf.get("OAUTH2_CLIENT_ID"),
-    client_secret=appConf.get("OAUTH2_CLIENT_SECRET"),
+    client_id= os.getenv('KEYCLOAK_CLIENT'),
+    client_secret= os.getenv('KEYCLOAK_CLIENT_SECRET'),
     client_kwargs={
         "scope": "openid profile email"
     },
-    server_metadata_url=f'{appConf.get("OAUTH2_ISSUER")}/.well-known/openid-configuration'
+    server_metadata_url=f'{os.getenv("KEYCLOAK_URL")}/realms/{os.getenv("KEYCLOAK_REALM")}/.well-known/openid-configuration'
 )
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SECRET_KEY'] = 'namastox misteries'
