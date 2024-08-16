@@ -299,7 +299,7 @@ def predict(ra_name):
             return json.dumps(f'Predictions not completed for substance of {ra_name}'), 500, {'ContentType':'application/json'} 
         
     else:
-        return json.dumps(f'Failed to predict substance of {ra_name}'), 500, {'ContentType':'application/json'} 
+        return json.dumps(f'Failed to predict substance of {ra_name} with error:, {results}'), 500, {'ContentType':'application/json'} 
 
 # PREDICT RA SUBSTANCE USING LIST OF MODELS
 @app.route(f'{url_base}{version}inform_name/<string:molname>',methods=['GET'])
