@@ -292,7 +292,7 @@ def predict(ra_name):
 
     success, results = manage.predictLocalModels(ra_name, models, versions)
     if success:
-        success, results = manage.getLocalModelPrediction(ra_name)
+        success, results = manage.getLocalModelPrediction(ra_name, results)
         if success :
             return results, 200, {'ContentType':'application/json'}
         else:
