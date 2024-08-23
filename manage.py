@@ -7,6 +7,7 @@ import tempfile
 import shutil
 from werkzeug.utils import secure_filename
 from flame.manage import action_import
+from flame.util.utils import set_repositories
 
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
@@ -387,10 +388,28 @@ def putTable(ra_name):
     else:
         return json.dumps({'success:': False, 'error': 'Failed to upload file, incorrect file or file type'}), 500, {'ContentType':'application/json'} 
     
+# CHANGE REPO
+@app.route(f'{url_base}{version}newrepo/<string:newrepo>',methods=['GET'])
+@cross_origin()
+def changeRepo(newrepo):
+
+    print ('>>>>>>>>>>>>', newrepo)
+
+    if not os.path.isdir(newrepo):
+        return json.dumps(f'Invalid path'), 500, {'ContentType':'application/json'} 
+    
+    success = set_repositories(newrepo)
+
+    if success:
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps({'success':False}), 500, {'ContentType':'application/json'} 
+        
+    
 # IMPORT MODEL
 @app.route(f'{url_base}{version}import_model',methods=['POST'])
 @cross_origin()
-def importMadel():
+def importModel():
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -416,7 +435,10 @@ def importMadel():
             success = True
 
         # clean removing the tgz file
-        shutil.rmtree(pathname)
+        try:
+            os.remove(pathname)
+        except:
+            pass
 
         if success:
             return json.dumps({'success':True, 'message': result}), 200, {'ContentType':'application/json'} 
