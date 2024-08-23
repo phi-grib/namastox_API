@@ -412,7 +412,12 @@ def importMadel():
 
         # success, values, uncertainties = manage.getTableContents(pathname)
         success, result = action_import(pathname)
-        print (success, result)
+        if result.startswith('WARNING: Incompatible libraries'):
+            success = True
+
+        # clean removing the tgz file
+        shutil.rmtree(pathname)
+
         if success:
             return json.dumps({'success':True, 'message': result}), 200, {'ContentType':'application/json'} 
         else:
