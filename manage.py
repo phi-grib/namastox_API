@@ -393,8 +393,6 @@ def putTable(ra_name):
 @cross_origin()
 def changeRepo(newrepo):
 
-    print ('>>>>>>>>>>>>', newrepo)
-
     if not os.path.isdir(newrepo):
         return json.dumps(f'Invalid path'), 500, {'ContentType':'application/json'} 
     
