@@ -16,6 +16,6 @@ def catch_all(path):
     else:
         return app.send_static_file('index.html')
 
-app.register_blueprint(auth_routes)
+# app.register_blueprint(auth_routes)
 if __name__ == '__main__':
     app.run(host="0.0.0.0",debug=True)

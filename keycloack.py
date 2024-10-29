@@ -1,54 +1,112 @@
-from flask import Blueprint, session, redirect, url_for, abort,jsonify
+from flask import Blueprint, session, redirect, url_for, abort,jsonify,render_template
 from urllib.parse import quote_plus, urlencode
 from settings import *
+import requests
+from flask import request
+from dotenv import load_dotenv
+import os
+import logging
+from functools import wraps
 
-auth_routes = Blueprint('auth_routes', __name__)
+load_dotenv() # load env variables
 
-@app.route("/login")
+logging.basicConfig(level=logging.DEBUG) # Basic logging configuration
+
+@app.route("/")
+def index():
+    if "user" in session:
+        return app.send_static_file('index.html')
+    else:
+        return redirect(url_for('login'))
+    
+# Decorator for required login
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user" not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+
+@app.route("/protected")
+@login_required
+def protected():
+    return "You have access to this protected route"
+
+@app.route('/login')
 def login():
-    return oauth.myApp.authorize_redirect(redirect_uri=url_for("callback", _external=True))
-
-@app.route("/callback")
-def callback():
-    token = oauth.myApp.authorize_access_token()
-    userinfo = token.get("userinfo")
-    # Store only the user's essential information in the session
-    session["user"] = {
-        "access_token": token.get("access_token"),
-        "id_token": token.get("id_token"),
-        "refresh_token": token.get("refresh_token"),
-        "username": userinfo.get("preferred_username")
+    authorize_url = f"{os.environ.get('KEYCLOAK_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/auth"
+    redirect_uri = "http://127.0.0.1:5000/callback"
+    params = {
+        'client_id':os.environ.get('KEYCLOAK_CLIENT'),
+        'redirect_uri':redirect_uri,
+        'response_type': 'code',
+        'scope': 'openid profile email'
     }
-    return app.send_static_file('index.html')
+    return redirect(f"{authorize_url}?{'&'.join([f'{key}={value}' for key, value in params.items()])}")
+
+@app.route('/callback')
+def callback():
+    code = request.args.get('code')
+    logging.debug(f"Callback received with code:{code}")
+    token_endpoint = f"{os.environ.get('KEYCLOAK_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/token"
+    payload = {
+        "grant_type": "authorization_code",
+        "code":code,
+        "redirect_uri": "http://127.0.0.1:5000/callback",
+        "client_id": os.environ.get('KEYCLOAK_CLIENT'),
+        "client_secret":os.environ.get('KEYCLOAK_CLIENT_SECRET')
+    }
+    try:
+        response = requests.post(token_endpoint,data=payload)
+        if response.status_code != 200:
+            logging.error(f"Error fetching tokens: {response.status_code} - {response.text}")
+            return "Failed to fetch tokens."
+
+        token_data = response.json()
+
+        if "access_token" in token_data:
+            userinfo_endpoint = f"{os.environ.get('KEYCLOAK_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/userinfo"
+            userinfo_response = requests.get(userinfo_endpoint,headers={"Authorization":f"Bearer {token_data['access_token']}"})
+            userinfo = userinfo_response.json()
+
+            session['user'] = {
+                "id_token": token_data.get('id_token'),
+                "access_token": token_data.get('access_token'),
+                "refresh_token": token_data.get("refresh_token"),
+                "username": userinfo.get("preferred_username"),
+                "email": userinfo.get("email")
+            }
+
+            logging.debug("User logged in successfully.")
+            return redirect(url_for('index'))
+        else:
+            logging.error("Failed to fetch tokens.")
+            return "Failed to fetch tokens."
+    except Exception as e:
+        logging.error(f"Exception during token exchange: {e}")
+        return "Failed to fetch tokens"
 
 @app.route("/logout")
 def logout():
-    id_token = session["user"]["id_token"]
-    session.clear()
-    return redirect(
-        f'{os.getenv("KEYCLOAK_URL")}/realms/{os.getenv("KEYCLOAK_REALM")}'
-        + "/protocol/openid-connect/logout?"
-         + urlencode(
-             {
-                 "post_logout_redirect_uri": url_for("loggedOut",_external=True),
-                 "id_token_hint":id_token
-             },
-             quote_via=quote_plus
-         )
-    )
+    logging.debug("Attempting to logout...")
+    
+    try:
+        end_session_endpoint = f"{os.environ.get('KEYCLOAK_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/logout"
+        redirect_uri = "http://127.0.0.1:5000/login"
 
-@app.route("/loggedout")
-def loggedOut():
-    if "user" in session:
-        abort(404)
-    return app.send_static_file('index.html')
+        response = requests.get(f"{end_session_endpoint}?redirect_uri={redirect_uri}",timeout=5)
 
-#when the user starts the interface asks the backend if there is an open session or not. 
-#each session is individual per user
-@app.route(f'{url_base}{version}user_session/',methods=['GET'])
-@cross_origin()
-def getUsserSession():
-    if "user" in session:
-        return session["user"]
-    else:
-        return jsonify(False)
+        session.clear() # Clear session data upon successful logout
+        logging.debug("Session cleared. Redirection to login...")
+
+        return redirect(url_for('login'))
+    
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Exception during logout: {e}")
+        return "Failed to logout. Please try again."
+
+
+
