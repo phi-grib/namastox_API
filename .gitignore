@@ -1,4 +1,3 @@
 namastox.log
 *.pyc
 .env
-client_secrets.json
