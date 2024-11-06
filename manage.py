@@ -6,7 +6,7 @@ import os
 import tempfile
 import shutil
 from werkzeug.utils import secure_filename
-from keycloak import login_required
+from keycloack import login_required
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
 @cross_origin()
