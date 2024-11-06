@@ -1,16 +1,19 @@
 from settings import *
 from namastox import manage
-
+from flask import session, jsonify
 import json
 import os
 import tempfile
 import shutil
 from werkzeug.utils import secure_filename
-
+from keycloak import login_required
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
 @cross_origin()
 def getList():
+    username = session['user'].get('username', 'Unknown')
+    print("USERNAME KEYCLOAK:")
+    print(username)
     success, data = manage.action_list(out='json')
     if success:
         return data
