@@ -193,6 +193,22 @@ def getWorkflow(ra_name, step=None):
     else:
         return json.dumps(f'Failed to get workflow for {ra_name}, with error {workflow_graph}'), 500, {'ContentType':'application/json'} 
 
+# GET WORKFLOW DEFINITION
+@app.route(f'{url_base}{version}catalogue/<string:ra_name>',methods=['GET'])
+@cross_origin()
+def getCatalogue(ra_name):
+
+    granted, access_result = checkAccess(ra_name,'read')
+    if not granted:
+        return access_result # this is the 403 JSON response
+
+    success, workflow_graph = manage.getCatalogue (ra_name)
+    if success:
+        return json.dumps({'success':True, 'result': workflow_graph}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to get catalogue for {ra_name}, with error {workflow_graph}'), 500, {'ContentType':'application/json'} 
+
+
 # # PUT CUSTOM WORKFLOW DEFINITION
 # @app.route(f'{url_base}{version}custom_workflow/<string:ra_name>',methods=['PUT'])
 # @cross_origin()
