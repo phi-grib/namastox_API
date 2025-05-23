@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknamastox_web=self.webpackChunknamastox_web||[]).push([[212],{212:(E,s,_)=>{_.r(s),_.d(s,{GitGraphModule:()=>a.L,createGitGraphServices:()=>a.b});var a=_(8688);_(6621)}}]);

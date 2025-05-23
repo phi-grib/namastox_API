@@ -10,6 +10,17 @@ from werkzeug.utils import secure_filename
 from flame.manage import action_import
 from flame.util.utils import set_repositories
 
+
+
+# Inform the rest of the users about the update of a ra
+@app.route(f'{url_base}{version}update_ra', methods=['POST'])
+def update():
+    data = request.json
+    ra = data.get('ra', 'unknown')
+    user = data.get('user','unknown')
+    sse.publish({"message": f"RA updated: {ra}","ra":ra,"user":user}, type='ra_updated')
+    return '', 200
+
 # GET LIST of RA
 @app.route(f'{url_base}{version}list',methods=['GET'])
 @cross_origin()

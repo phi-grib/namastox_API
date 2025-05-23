@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknamastox_web=self.webpackChunknamastox_web||[]).push([[143],{2143:(E,_,a)=>{a.r(_),a.d(_,{RadarModule:()=>s.l,createRadarServices:()=>s.f});var s=a(644);a(6621)}}]);

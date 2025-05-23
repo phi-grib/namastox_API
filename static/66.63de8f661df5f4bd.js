@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknamastox_web=self.webpackChunknamastox_web||[]).push([[66],{2066:(n,s,_)=>{_.r(s),_.d(s,{InfoModule:()=>E.p,createInfoServices:()=>E.v});var E=_(9406);_(6621)}}]);

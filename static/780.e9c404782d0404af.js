@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknamastox_web=self.webpackChunknamastox_web||[]).push([[780],{8780:(a,s,_)=>{_.r(s),_.d(s,{PieModule:()=>E.B,createPieServices:()=>E.f});var E=_(4347);_(6621)}}]);

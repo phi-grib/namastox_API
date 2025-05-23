@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknamastox_web=self.webpackChunknamastox_web||[]).push([[841],{7841:(e,s,_)=>{_.r(s),_.d(s,{ArchitectureModule:()=>c.i,createArchitectureServices:()=>c.S});var c=_(1052);_(6621)}}]);

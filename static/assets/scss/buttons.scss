@@ -1,0 +1,93 @@
+@import "./colors.scss";
+// File to define buttons properties
+
+.btn-ets-edit {
+  background: #f6d268;
+  color: black;
+  border-width: 0;
+  font-family: "Barlow Semi Condensed", "Arial", "Helvetica";
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+}
+
+.btn-ets-edit:hover,
+.btn-ets-edit:active,
+.btn-ets-edit:focus,
+.btn-ets-edit.active {
+  background: rgb(241, 191, 10);
+  color: black;
+}
+
+
+.btn-ets-secondary-do{
+  background: #f1f4fc;
+  color: #474286;
+  border-width: 0;
+  font-family: "Barlow Semi Condensed", "Arial", "Helvetica";
+  letter-spacing: 0.05em;
+  border-radius: 0px;
+  &:hover {
+    background-color: #b5beec;
+  }
+}
+
+.btn-ets-do {
+  background: $primary-color;
+  color: #ffffff;
+  border-width: 0;
+  font-family: "Barlow Semi Condensed", "Arial", "Helvetica";
+  letter-spacing: 0.05em;
+  border-radius: 0;
+}
+.btn-ets-do:hover,
+.btn-ets-do:active,
+.btn-ets-do:focus,
+.btn-ets-do.active {
+  background: $secondary-color;
+  color: #ffffff;
+}
+
+.btn-ets-delete {
+  background: #ff1818;
+  color: #ffffff;
+  border-width: 0;
+  font-family: "Barlow Semi Condensed", "Arial", "Helvetica";
+  letter-spacing: 0.05em;
+  border-radius: 0;
+}
+.btn-ets-delete:hover,
+.btn-ets-delete:active,
+.btn-ets-delete:focus,
+.btn-ets-delete.active {
+  background: #9a0a0a;
+  color: #ffffff;
+}
+
+.btn-ets-bad {
+  background-color: #646363;
+  color: #ffffff;
+  border-width: 0;
+  // font-family: 'Barlow Semi Condensed', 'Arial', 'Helvetica';
+  letter-spacing: 0.05em;
+  border-radius: 0;
+}
+
+.btn-ets-bad:hover,
+.btn-ets-bad:focus,
+.btn-ets-bad.active {
+  background-color: #9e9d9d;
+  color: #ffffff;
+}
+
+
+.btn-start-group {
+  border-radius: 4px 0px 0px 4px !important;
+}
+
+.btn-end-group {
+  border-radius: 0px 4px 4px 0px !important;
+}
+
+.border-btn{
+  border-radius: 4px !important;
+}

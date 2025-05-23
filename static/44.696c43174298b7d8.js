@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknamastox_web=self.webpackChunknamastox_web||[]).push([[44],{2044:(E,s,_)=>{_.r(s),_.d(s,{PacketModule:()=>a.T,createPacketServices:()=>a.$});var a=_(4976);_(6621)}}]);

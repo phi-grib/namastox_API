@@ -45,10 +45,10 @@ def user_info():
 
 @app.route('/login')
 def login():
-    authorize_url = f"{os.environ.get('KEYCLOAK_AUTHORIZE_URL')}/realms/namastox/protocol/openid-connect/auth"
+    authorize_url = f"{os.environ.get('KEYCLOAK_AUTHORIZE_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/auth"
     redirect_uri = f"http://localhost:5000/callback"
     params = {
-        'client_id':"namastox-client",
+        'client_id':os.environ.get('KEYCLOAK_CLIENT'),
         'redirect_uri':redirect_uri,
         'response_type': 'code',
         'scope': 'openid profile email'
@@ -59,12 +59,12 @@ def login():
 def callback():
     code = request.args.get('code')
     logging.debug(f"Callback received with code:{code}")
-    token_endpoint = f"http://localhost:8080/realms/namastox/protocol/openid-connect/token"
+    token_endpoint = f"{os.environ.get('KEYCLOAK_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/token"
     payload = {
         "grant_type": "authorization_code",
         "code":code,
         "redirect_uri": f"http://localhost:5000/callback",
-        "client_id": "namastox-client",
+        "client_id":os.environ.get('KEYCLOAK_CLIENT'),
         "client_secret":os.environ.get('KEYCLOAK_CLIENT_SECRET')
     }
     logging.debug(f"Token request payload: {payload}")
@@ -94,7 +94,7 @@ def callback():
 def logout():
     logging.debug("Attempting to logout...")
     session.clear()
-    logout_url = f"{os.environ.get('KEYCLOAK_AUTHORIZE_URL')}/realms/namastox/protocol/openid-connect/logout?redirect_uri={url_for('index',_external=True)}"
+    logout_url = f"{os.environ.get('KEYCLOAK_AUTHORIZE_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/logout?redirect_uri={url_for('index',_external=True)}"
     return redirect(logout_url)
 
 
