@@ -1,7 +1,7 @@
 from settings import *
 from user import getUsername, checkAccess
 from namastox import manage
-
+import platform
 import json
 import os
 import tempfile
@@ -560,6 +560,16 @@ def importModel():
             return json.dumps({'success':False, 'message': result}), 500, {'ContentType':'application/json'} 
         
     else:
-        return json.dumps({'success:': False, 'error': 'no suitable file'}), 500, {'ContentType':'application/json'} 
+        return json.dumps({'success:': False, 'error': 'no suitable file'}), 500, {'ContentType':'application/json'}
+
+
+# SYSTEM INFO
+@app.route(f'{url_base}{version}system_info',methods=['GET'])
+@cross_origin()
+def systemInfo():
+    system = platform.system()
+    return json.dumps({'result':system}), 200, {'ContentType':'application/json'} 
+
+
     
     
