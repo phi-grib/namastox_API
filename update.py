@@ -26,10 +26,11 @@ def updateGeneralInfo(ra_name):
     # check if the post request has the file part
     if 'custom_workflow_file' in request.files:
         file = request.files['custom_workflow_file']
+
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
 
-        if file.filename == '':
+        if file is None:
             return json.dumps(f'Failed to upload file, empty file nama'), 500, {'ContentType':'application/json'} 
         
         if file and allowed_attachment(file.filename):
@@ -40,6 +41,9 @@ def updateGeneralInfo(ra_name):
                 return json.dumps(f'Failed to upload file, unable to access repository'), 500, {'ContentType':'application/json'} 
 
             file.save(os.path.join(data, filename))
+            
+            if not 'workflow_custom' in input_dict:
+                input_dict['workflow_custom'] = filename
 
     success, data = update.action_update_general_info(ra_name, {'general':input_dict})
     if success:
