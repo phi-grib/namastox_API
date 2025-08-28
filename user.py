@@ -29,3 +29,20 @@ def checkAccess(ra_name, access_type):
         return False, (json.dumps(f'Forbidden WRITE access to {ra_name}'), 403, {'ContentType':'application/json'})
 
     return True, user_name
+
+def correctList(user_list):
+    # if * in list return user_list
+    if '*' in user_list:
+        return user_list
+
+    # if not check if current_name is included
+    try:
+        user_name = session['user'].get('username', 'Unknown')
+    except:
+        user_name = 'generic'
+    
+    if not user_name in user_list:
+        user_list.append(user_name)
+
+    return user_list
+    

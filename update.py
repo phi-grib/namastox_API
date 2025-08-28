@@ -1,5 +1,5 @@
 from settings import *
-from user import checkAccess
+from user import checkAccess, correctList
 import json
 import os
 from namastox import update
@@ -64,8 +64,10 @@ def updateUsers(ra_name):
     users_write=None
     if 'read' in request.form:
         users_read = request.form['read'].replace(' ', '').strip().split(',')
+        users_read = correctList(users_read)
     if 'write' in request.form:
         users_write = request.form['write'].replace(' ', '').strip().split(',')
+        users_write = correctList(users_write)
 
     manage.action_setusers(ra_name, users_read, users_write)
 
