@@ -45,7 +45,9 @@ def user_info():
 
 @app.route('/login')
 def login():
-    authorize_url = f"{os.environ.get('KEYCLOAK_AUTHORIZE_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/auth"
+    auth_base = os.environ.get('KEYCLOAK_AUTHORIZE_URL', 'http://localhost:8080')
+    authorize_url = f"{auth_base}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/auth"
+    
     redirect_uri = f"http://localhost:5000/callback"
     params = {
         'client_id':os.environ.get('KEYCLOAK_CLIENT'),
@@ -59,6 +61,8 @@ def login():
 def callback():
     code = request.args.get('code')
     logging.debug(f"Callback received with code:{code}")
+
+    kc_url = os.environ.get('KEYCLOAK_URL', 'http://keycloak:8080')
     token_endpoint = f"{os.environ.get('KEYCLOAK_URL')}/realms/{os.environ.get('KEYCLOAK_REALM')}/protocol/openid-connect/token"
     payload = {
         "grant_type": "authorization_code",
