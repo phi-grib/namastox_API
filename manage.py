@@ -562,14 +562,5 @@ def importModel():
     else:
         return json.dumps({'success:': False, 'error': 'no suitable file'}), 500, {'ContentType':'application/json'}
 
-
-# SYSTEM INFO
-@app.route(f'{url_base}{version}system_info',methods=['GET'])
-@cross_origin()
-def systemInfo():
-    system = platform.system()
-    return json.dumps({'result':system}), 200, {'ContentType':'application/json'} 
-
-
     
     
