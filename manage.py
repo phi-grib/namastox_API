@@ -14,8 +14,8 @@ from flame.util.utils import set_repositories
 @app.route(f'{url_base}{version}list',methods=['GET'])
 @cross_origin()
 def getList():
-    user_name = getUsername()
-    success, data = manage.action_list(user_name, out='json')
+    username = getUsername()
+    success, data = manage.action_list(username, out='json')
     if success:
         return data
     else:
@@ -57,7 +57,7 @@ def getGeneralInfo(ra_name):
 @app.route(f'{url_base}{version}new/<string:ra_name>',methods=['PUT'])
 @cross_origin()
 def putNew(ra_name):
-    success, data = manage.action_new(ra_name)
+    success, data = manage.action_new(ra_name, getUsername())
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
