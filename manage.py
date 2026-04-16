@@ -15,7 +15,7 @@ from flame.util.utils import set_repositories
 @cross_origin()
 def getList():
     username = getUsername()
-    success, data = manage.action_list(username, out='json')
+    success, data = manage.action_list(username)
     if success:
         return data
     else:
