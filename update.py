@@ -1,5 +1,5 @@
 from settings import *
-from user import checkAccess, correctList
+from user import getUsername, checkAccess, correctList
 import json
 import os
 from namastox import update
@@ -15,8 +15,8 @@ def allowed_attachment(filename):
 @app.route(f'{url_base}{version}general_info/<string:ra_name>',methods=['PUT'])
 @cross_origin()
 def updateGeneralInfo(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
 
@@ -36,7 +36,7 @@ def updateGeneralInfo(ra_name):
         if file and allowed_attachment(file.filename):
             filename = secure_filename(file.filename)
             filename = filename.replace (' ','_')
-            success, data = manage.getPath (ra_name)
+            success, data = manage.getPath (ra_name, username)
             if not success:
                 return json.dumps(f'Failed to upload file, unable to access repository'), 500, {'ContentType':'application/json'} 
 
@@ -45,7 +45,7 @@ def updateGeneralInfo(ra_name):
             if not 'workflow_custom' in input_dict:
                 input_dict['workflow_custom'] = filename
 
-    success, data = update.action_update_general_info(ra_name, {'general':input_dict})
+    success, data = update.action_update_general_info(ra_name, username, {'general':input_dict})
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
@@ -55,8 +55,8 @@ def updateGeneralInfo(ra_name):
 @app.route(f'{url_base}{version}users/<string:ra_name>',methods=['PUT'])
 @cross_origin()
 def updateUsers(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
 
@@ -69,7 +69,7 @@ def updateUsers(ra_name):
         users_write = request.form['write'].replace(' ', '').strip().split(',')
         users_write = correctList(users_write)
 
-    manage.action_setusers(ra_name, users_read, users_write)
+    manage.action_setusers(ra_name, username,  users_read, users_write)
 
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
@@ -78,14 +78,14 @@ def updateUsers(ra_name):
 @app.route(f'{url_base}{version}result/<string:ra_name>/<int:step>',methods=['PUT'])
 @cross_origin()
 def updateResult(ra_name, step=None):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
 
     input_string = request.form['result']
     input_dict = json.loads(input_string)
-    success, data = update.action_update_result(ra_name, step, {'result':[input_dict]})
+    success, data = update.action_update_result(ra_name, username, step, {'result':[input_dict]})
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
