@@ -7,7 +7,7 @@ def getUsername():
     try:
         user_name = session['user'].get('username', 'Unknown')
     except:
-        user_name = 'generic'
+        user_name = 'admin'
     return user_name
 
     # return (session['user'].get('username', 'Unknown'))

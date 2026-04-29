@@ -58,7 +58,15 @@ def getGeneralInfo(ra_name):
 @cross_origin()
 def putNew(ra_name):
     username = getUsername()
-    success, data = manage.action_new(ra_name, username)
+
+    shared = False
+    response = request.get_json()
+    if 'shared' in response:
+        shared = response['shared']
+        if shared:
+            ra_name = '+'+ra_name
+    
+    success, data = manage.action_new(ra_name, username, shared)
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
