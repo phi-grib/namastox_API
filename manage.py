@@ -96,6 +96,10 @@ def putRename(ra_name, ra_newname):
     if not granted:
         return access_result # this is the 403 JSON response
 
+    if ra_name[0] == '+':
+        if ra_newname[0] != '+':
+            ra_newname = '+'+ra_newname
+
     success, data = manage.action_rename(ra_name, username, ra_newname)
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
@@ -299,6 +303,10 @@ def importRA():
         return json.dumps({"success": False, "error": "Failed to upload file, no file information found"}), 500, {'ContentType':'application/json'} 
     
     file = request.files['file']
+
+    if file.filename[0] == '+':
+        username = 'shared'
+
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
