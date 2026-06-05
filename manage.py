@@ -117,7 +117,10 @@ def putKill(ra_name, step=None):
     if not granted:
         return access_result # this is the 403 JSON response
     
-    success, data = manage.action_kill(ra_name, username, step)
+    if step is None:
+        success, data = manage.action_kill(ra_name, username)
+    else:
+        success, data = manage.action_backwards(ra_name, username)
 
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
