@@ -7,18 +7,18 @@ def getUsername():
     try:
         user_name = session['user'].get('username', 'Unknown')
     except:
-        user_name = 'generic'
+        user_name = 'admin'
     return user_name
 
     # return (session['user'].get('username', 'Unknown'))
 
-def checkAccess(ra_name, access_type):
-    try:
-        user_name = session['user'].get('username', 'Unknown')
-    except:
-        user_name = 'generic'
+def checkAccess(ra_name, username, access_type):
+    # try:
+    #     user_name = session['user'].get('username', 'Unknown')
+    # except:
+    #     user_name = 'generic'
 
-    results = manage.action_privileges(ra_name, user_name)
+    results = manage.action_privileges(ra_name, username)
 
     # read access is checked allways    
     if not 'r' in results:
@@ -28,7 +28,7 @@ def checkAccess(ra_name, access_type):
     if access_type == 'write' and not 'w' in results:
         return False, (json.dumps(f'Forbidden WRITE access to {ra_name}'), 403, {'ContentType':'application/json'})
 
-    return True, user_name
+    return True, 'OK'
 
 def correctList(user_list):
     # if * in list return user_list

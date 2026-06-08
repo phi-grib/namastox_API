@@ -14,23 +14,23 @@ from flame.util.utils import set_repositories
 @app.route(f'{url_base}{version}list',methods=['GET'])
 @cross_origin()
 def getList():
-    user_name = getUsername()
-    success, data = manage.action_list(user_name, out='json')
+    username = getUsername()
+    success, data = manage.action_list(username)
     if success:
         return data
     else:
-        return json.dumps(f'Failed to obtain list of RAs'), 500, {'ContentType':'application/json'} 
+        return json.dumps(f'Failed to obtain list of RAs for username {username}'), 500, {'ContentType':'application/json'} 
     
 # GET LIST of steps
 @app.route(f'{url_base}{version}steps/<string:ra_name>',methods=['GET'])
 @cross_origin()
 def getSteps(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'read')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username,'read')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, data = manage.action_steps(ra_name, out='json')
+    success, data = manage.action_steps(ra_name, username,  out='json')
     
     if success:
         return data
@@ -42,12 +42,12 @@ def getSteps(ra_name):
 @app.route(f'{url_base}{version}general_info/<string:ra_name>',methods=['GET'])
 @cross_origin()
 def getGeneralInfo(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'read')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'read')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, data = manage.action_info(ra_name, out='json')
+    success, data = manage.action_info(ra_name, username, out='json')
     if success:
         return data
     else:
@@ -57,7 +57,16 @@ def getGeneralInfo(ra_name):
 @app.route(f'{url_base}{version}new/<string:ra_name>',methods=['PUT'])
 @cross_origin()
 def putNew(ra_name):
-    success, data = manage.action_new(ra_name)
+    username = getUsername()
+
+    shared = False
+    response = request.get_json()
+    if 'shared' in response:
+        shared = response['shared']
+        if shared:
+            ra_name = '+'+ra_name
+    
+    success, data = manage.action_new(ra_name, username, shared)
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
@@ -67,12 +76,12 @@ def putNew(ra_name):
 @app.route(f'{url_base}{version}clone/<string:ra_name>',methods=['PUT'])
 @cross_origin()
 def putClone(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, data = manage.action_clone(ra_name)
+    success, data = manage.action_clone(ra_name, username)
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
@@ -82,12 +91,16 @@ def putClone(ra_name):
 @app.route(f'{url_base}{version}rename/<string:ra_name>/<string:ra_newname>',methods=['PUT'])
 @cross_origin()
 def putRename(ra_name, ra_newname):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, data = manage.action_rename(ra_name, ra_newname)
+    if ra_name[0] == '+':
+        if ra_newname[0] != '+':
+            ra_newname = '+'+ra_newname
+
+    success, data = manage.action_rename(ra_name, username, ra_newname)
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
@@ -99,17 +112,19 @@ def putRename(ra_name, ra_newname):
 @app.route(f'{url_base}{version}delete/<string:ra_name>/<int:step>',methods=['PUT'])
 @cross_origin()
 def putKill(ra_name, step=None):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
     
-    success, data = manage.action_kill(ra_name,step)
+    if step is None:
+        success, data = manage.action_kill(ra_name, username)
+    else:
+        success, data = manage.action_backwards(ra_name, username)
 
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
-        # return (f'failed for {ra_name}', 500)
         return json.dumps(f'Failed to delete RA {ra_name}, with error {data}'), 500, {'ContentType':'application/json'} 
 
 def allowed_attachment(filename):
@@ -133,8 +148,8 @@ def allowed_import(filename):
 @app.route(f'{url_base}{version}link/<string:ra_name>',methods=['POST'])
 @cross_origin()
 def putLink(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
 
@@ -151,7 +166,7 @@ def putLink(ra_name):
     if file and allowed_attachment(file.filename):
         filename = secure_filename(file.filename)
         filename = filename.replace (' ','_')
-        success, data = manage.getRepositoryPath (ra_name)
+        success, data = manage.getRepositoryPath (ra_name, username)
         if not success:
             return json.dumps(f'Failed to upload file, unable to access repository'), 500, {'ContentType':'application/json'} 
 
@@ -164,12 +179,12 @@ def putLink(ra_name):
 @app.route(f'{url_base}{version}link/<string:ra_name>/<string:link_name>',methods=['GET'])
 @cross_origin()
 def getLink(ra_name, link_name):
-
-    granted, access_result = checkAccess(ra_name,'read')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'read')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, repo_path = manage.getRepositoryPath (ra_name)
+    success, repo_path = manage.getRepositoryPath (ra_name, username)
     if success:
         link_name = link_name.replace (' ','_')
         link_file = os.path.join (repo_path, link_name)
@@ -182,12 +197,12 @@ def getLink(ra_name, link_name):
 @app.route(f'{url_base}{version}workflow/<string:ra_name>/<int:step>',methods=['GET'])
 @cross_origin()
 def getWorkflow(ra_name, step=None):
-
-    granted, access_result = checkAccess(ra_name,'read')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'read')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, workflow_graph = manage.getWorkflow (ra_name, step)
+    success, workflow_graph = manage.getWorkflow (ra_name, username, step)
     if success:
         return json.dumps({'success':True, 'result': workflow_graph}), 200, {'ContentType':'application/json'} 
     else:
@@ -197,12 +212,12 @@ def getWorkflow(ra_name, step=None):
 @app.route(f'{url_base}{version}catalogue/<string:ra_name>',methods=['GET'])
 @cross_origin()
 def getCatalogue(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'read')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'read')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, workflow_graph = manage.getCatalogue (ra_name)
+    success, workflow_graph = manage.getCatalogue (ra_name, username)
     if success:
         return json.dumps({'success':True, 'result': workflow_graph}), 200, {'ContentType':'application/json'} 
     else:
@@ -270,12 +285,12 @@ def convertSubstances():
 @app.route(f'{url_base}{version}export/<string:ra_name>/',methods=['GET'])
 @cross_origin()
 def exportRA(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, export_file = manage.exportRA (ra_name)
+    success, export_file = manage.exportRA (ra_name, username)
     if success:
         return send_file(export_file, as_attachment=True)
     else:
@@ -285,11 +300,16 @@ def exportRA(ra_name):
 @app.route(f'{url_base}{version}import/',methods=['POST'])
 @cross_origin()
 def importRA():
+    username = getUsername()
     # check if the post request has the file part
     if 'file' not in request.files:
         return json.dumps({"success": False, "error": "Failed to upload file, no file information found"}), 500, {'ContentType':'application/json'} 
     
     file = request.files['file']
+
+    if file.filename[0] == '+':
+        username = 'shared'
+
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
@@ -303,7 +323,7 @@ def importRA():
         file.save(import_path)
 
         # call import with local path pointing to temp dir
-        success, message = manage.importRA (import_path)
+        success, message = manage.importRA (import_path, username)
 
         # remove the temp dir
         shutil.rmtree(tempdirname)
@@ -320,12 +340,12 @@ def importRA():
 @app.route(f'{url_base}{version}attachments/<string:ra_name>/',methods=['GET'])
 @cross_origin()
 def attachmentsRA(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'read')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'read')
     if not granted:
         return access_result # this is the 403 JSON response
 
-    success, attachments_file = manage.attachmentsRA (ra_name)
+    success, attachments_file = manage.attachmentsRA (ra_name, username)
     if success:
         return send_file(attachments_file, as_attachment=True)
     else:
@@ -346,11 +366,12 @@ def localModels():
 @app.route(f'{url_base}{version}users/<string:ra_name>',methods=['GET'])
 @cross_origin()
 def getUsers(ra_name):
-    granted, access_result = checkAccess(ra_name,'read')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'read')
     if not granted:
         return access_result # this is the 403 JSON response
     
-    users = manage.action_getusers(ra_name)
+    users = manage.action_getusers(ra_name, username)
     return users, 200, {'ContentType':'application/json'}
 
 # RETURN DOCUMENTATION FOR A MODELS
@@ -368,8 +389,8 @@ def modelDocumentation(model_name, model_ver):
 @app.route(f'{url_base}{version}predict/<string:ra_name>',methods=['PUT'])
 @cross_origin()
 def predict(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'read')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'read')
     if not granted:
         return access_result # this is the 403 JSON response
 
@@ -393,9 +414,9 @@ def predict(ra_name):
     if len(models)==0 or len(versions)==0 or len(versions)!=len(models):
         return json.dumps(f'Incomplete model information in prediction call'), 500, {'ContentType':'application/json'} 
 
-    success, results = manage.predictLocalModels(ra_name, models, versions)
+    success, results = manage.predictLocalModels(ra_name, username, models, versions)
     if success:
-        success, results = manage.getLocalModelPrediction(ra_name, results)
+        success, results = manage.getLocalModelPrediction(ra_name, username, results)
         if success :
             return results, 200, {'ContentType':'application/json'}
         else:
@@ -460,8 +481,8 @@ def inform(molname=None, casrn=None):
 @app.route(f'{url_base}{version}table/<string:ra_name>',methods=['POST'])
 @cross_origin()
 def putTable(ra_name):
-
-    granted, access_result = checkAccess(ra_name,'write')
+    username = getUsername()
+    granted, access_result = checkAccess(ra_name, username, 'write')
     if not granted:
         return access_result # this is the 403 JSON response
     
@@ -478,7 +499,7 @@ def putTable(ra_name):
     if file and allowed_attachment(file.filename):
         filename = secure_filename(file.filename)
         filename = filename.replace (' ','_')
-        success, data = manage.getRepositoryPath (ra_name)
+        success, data = manage.getRepositoryPath (ra_name, username)
         if not success:
             return json.dumps(f'Failed to upload file, unable to access repository'), 500, {'ContentType':'application/json'} 
 
