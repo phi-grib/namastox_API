@@ -4,8 +4,8 @@ import json
 from user import getUsername, checkAccess
 
 # GET STATUS of RA
-@app.route(f'{url_base}{version}status/<string:ra_name>',methods=['GET'])
-@app.route(f'{url_base}{version}status/<string:ra_name>/<int:step>',methods=['GET'])
+@app.route(f'{url_base}{version}status/<path:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}status/<path:ra_name>/<int:step>',methods=['GET'])
 @cross_origin()
 def getStatus(ra_name, step=None):
     username = getUsername()    
