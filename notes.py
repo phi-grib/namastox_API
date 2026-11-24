@@ -4,8 +4,8 @@ from namastox import notes
 import json
 
 # GET NOTES LIST of RA
-@app.route(f'{url_base}{version}notes/<string:ra_name>',methods=['GET'])
-@app.route(f'{url_base}{version}notes/<string:ra_name>/<int:step>',methods=['GET'])
+@app.route(f'{url_base}{version}notes/<path:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}notes/<path:ra_name>/<int:step>',methods=['GET'])
 def getNotes(ra_name, step=None):
     username = getUsername()
     granted, access_result = checkAccess(ra_name, username, 'read')
@@ -18,7 +18,7 @@ def getNotes(ra_name, step=None):
     else:
         return json.dumps(f'Failed to obtain notes for {ra_name} {step}'), 500, {'ContentType':'application/json'} 
 
-@app.route(f'{url_base}{version}note/<string:ra_name>/<string:note_id>',methods=['GET'])
+@app.route(f'{url_base}{version}note/<path:ra_name>/<string:note_id>',methods=['GET'])
 def getNote(ra_name, note_id):
     username = getUsername()
     granted, access_result = checkAccess(ra_name, username, 'read')
@@ -31,7 +31,7 @@ def getNote(ra_name, note_id):
     else:
         return json.dumps(f'Failed to obtain note {note_id} for {ra_name}'), 500 , {'ContentType':'application/json'} 
     
-@app.route(f'{url_base}{version}note/<string:ra_name>',methods=['PUT'])
+@app.route(f'{url_base}{version}note/<path:ra_name>',methods=['PUT'])
 def putNote(ra_name):
     username = getUsername()
     granted, access_result = checkAccess(ra_name, username, 'write')
@@ -51,7 +51,7 @@ def putNote(ra_name):
     else:
         return json.dumps(f'Failed to add note to {ra_name}'), 500, {'ContentType':'application/json'} 
     
-@app.route(f'{url_base}{version}note/<string:ra_name>/<string:note_id>',methods=['DELETE'])
+@app.route(f'{url_base}{version}note/<path:ra_name>/<string:note_id>',methods=['DELETE'])
 def deleteNote(ra_name, note_id):
     username = getUsername()
     granted, access_result = checkAccess(ra_name, username, 'write')

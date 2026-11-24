@@ -22,7 +22,7 @@ def getList():
         return json.dumps(f'Failed to obtain list of RAs for username {username}'), 500, {'ContentType':'application/json'} 
     
 # GET LIST of steps
-@app.route(f'{url_base}{version}steps/<string:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}steps/<path:ra_name>',methods=['GET'])
 @cross_origin()
 def getSteps(ra_name):
     username = getUsername()
@@ -39,7 +39,7 @@ def getSteps(ra_name):
 
 
 # GET GENERAL INFO RA
-@app.route(f'{url_base}{version}general_info/<string:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}general_info/<path:ra_name>',methods=['GET'])
 @cross_origin()
 def getGeneralInfo(ra_name):
     username = getUsername()
@@ -61,19 +61,41 @@ def putNew(ra_name):
 
     shared = False
     response = request.get_json()
+    currentContextItem = response['currentContextItem']
     if 'shared' in response:
         shared = response['shared']
         if shared:
             ra_name = '+'+ra_name
     
-    success, data = manage.action_new(ra_name, username, shared)
+    success, data = manage.action_new(ra_name, username, shared, currentContextItem)
     if success:
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
         return json.dumps(f'Failed to create new RA {ra_name}, with error {data}'), 500, {'ContentType':'application/json'} 
 
+# PUT NEW FOLDER
+@app.route(f'{url_base}{version}newFolder/<string:folder_name>',methods=['PUT'])
+@cross_origin()
+def putNewFolder(folder_name):
+    username = getUsername()
+
+    shared = False
+    response = request.get_json()
+    if 'shared' in response:
+        shared = response['shared']
+        if shared:
+            folder_name = '+'+ '_folder_' + folder_name
+        else:
+            folder_name = '_folder_' + folder_name
+    
+    success, data = manage.action_newFolder(folder_name, username, shared)
+    if success:
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to create new Folder {folder_name}, with error {data}'), 500, {'ContentType':'application/json'} 
+
 # PUT CLONE RA
-@app.route(f'{url_base}{version}clone/<string:ra_name>',methods=['PUT'])
+@app.route(f'{url_base}{version}clone/<path:ra_name>',methods=['PUT'])
 @cross_origin()
 def putClone(ra_name):
     username = getUsername()
@@ -88,7 +110,7 @@ def putClone(ra_name):
         return json.dumps(f'Failed to clone RA {ra_name}, with error {data}'), 500, {'ContentType':'application/json'} 
 
 # PUT RENAME RA
-@app.route(f'{url_base}{version}rename/<string:ra_name>/<string:ra_newname>',methods=['PUT'])
+@app.route(f'{url_base}{version}rename/<path:ra_name>/<string:ra_newname>',methods=['PUT'])
 @cross_origin()
 def putRename(ra_name, ra_newname):
     username = getUsername()
@@ -106,10 +128,31 @@ def putRename(ra_name, ra_newname):
     else:
         return json.dumps(f'Failed to rename RA {ra_name} as {ra_newname}, with error {data}'), 500, {'ContentType':'application/json'} 
 
+# PUT RENAME Folder
+@app.route(f'{url_base}{version}renameFolder/<path:oldFolderName>/<string:newFolderName>',methods=['PUT'])
+@cross_origin()
+def putRenameFolder(oldFolderName, newFolderName):
+    username = getUsername()
+    granted, access_result = checkAccess(oldFolderName, username, 'write')
+    if not granted:
+        return access_result # this is the 403 JSON response
+
+    if oldFolderName[0] == '+':
+        if newFolderName[0] != '+':
+            newFolderName = '+_folder_'+newFolderName
+    else:
+        newFolderName = '_folder_'+newFolderName
+
+    success, data = manage.action_renameFolder(oldFolderName, username, newFolderName)
+    if success:
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to rename Folder {oldFolderName} as {newFolderName}, with error {data}'), 500, {'ContentType':'application/json'} 
+
 
 # PUT DELETE RA
-@app.route(f'{url_base}{version}delete/<string:ra_name>',methods=['PUT'])
-@app.route(f'{url_base}{version}delete/<string:ra_name>/<int:step>',methods=['PUT'])
+@app.route(f'{url_base}{version}delete/<path:ra_name>',methods=['PUT'])
+@app.route(f'{url_base}{version}delete/<path:ra_name>/<int:step>',methods=['PUT'])
 @cross_origin()
 def putKill(ra_name, step=None):
     username = getUsername()
@@ -126,6 +169,23 @@ def putKill(ra_name, step=None):
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
         return json.dumps(f'Failed to delete RA {ra_name}, with error {data}'), 500, {'ContentType':'application/json'} 
+
+
+# PUT DELETE Folder
+@app.route(f'{url_base}{version}deleteFolder/<path:folder_name>',methods=['PUT'])
+@cross_origin()
+def putDeleteFolder(folder_name):
+    username = getUsername()
+    granted, access_result = checkAccess(folder_name, username, 'write')
+    if not granted:
+        return access_result # this is the 403 JSON response
+    
+    success, data = manage.action_deleteFolder(folder_name, username)
+
+    if success:
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        return json.dumps(f'Failed to delete Folder {folder_name}, with error {data}'), 500, {'ContentType':'application/json'} 
 
 def allowed_attachment(filename):
     return '.' in filename and \
@@ -193,8 +253,8 @@ def getLink(ra_name, link_name):
         return json.dumps(f'Failed to get link {link_name}, with error {repo_path}'), 500, {'ContentType':'application/json'} 
 
 # GET WORKFLOW DEFINITION
-@app.route(f'{url_base}{version}workflow/<string:ra_name>',methods=['GET'])
-@app.route(f'{url_base}{version}workflow/<string:ra_name>/<int:step>',methods=['GET'])
+@app.route(f'{url_base}{version}workflow/<path:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}workflow/<path:ra_name>/<int:step>',methods=['GET'])
 @cross_origin()
 def getWorkflow(ra_name, step=None):
     username = getUsername()
@@ -209,7 +269,7 @@ def getWorkflow(ra_name, step=None):
         return json.dumps(f'Failed to get workflow for {ra_name}, with error {workflow_graph}'), 500, {'ContentType':'application/json'} 
 
 # GET WORKFLOW DEFINITION
-@app.route(f'{url_base}{version}catalogue/<string:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}catalogue/<path:ra_name>',methods=['GET'])
 @cross_origin()
 def getCatalogue(ra_name):
     username = getUsername()
@@ -282,7 +342,7 @@ def convertSubstances():
         return json.dumps(f'Failed to convert substances with error {substances}'), 500, {'ContentType':'application/json'} 
 
 # EXPORT RA
-@app.route(f'{url_base}{version}export/<string:ra_name>/',methods=['GET'])
+@app.route(f'{url_base}{version}export/<path:ra_name>/',methods=['GET'])
 @cross_origin()
 def exportRA(ra_name):
     username = getUsername()
@@ -337,7 +397,7 @@ def importRA():
         return json.dumps(f'Failed to import {filename}'), 500, {'ContentType':'application/json'} 
 
 # EXPORT ATTACHMENTS
-@app.route(f'{url_base}{version}attachments/<string:ra_name>/',methods=['GET'])
+@app.route(f'{url_base}{version}attachments/<path:ra_name>/',methods=['GET'])
 @cross_origin()
 def attachmentsRA(ra_name):
     username = getUsername()
@@ -363,7 +423,7 @@ def localModels():
         return json.dumps(f'Failed to get list of local models'), 500, {'ContentType':'application/json'} 
     
 # RETURN LIST OF USERS
-@app.route(f'{url_base}{version}users/<string:ra_name>',methods=['GET'])
+@app.route(f'{url_base}{version}users/<path:ra_name>',methods=['GET'])
 @cross_origin()
 def getUsers(ra_name):
     username = getUsername()

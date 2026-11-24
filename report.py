@@ -4,7 +4,7 @@ from namastox import report
 import json
 
 # REPORT RA
-@app.route(f'{url_base}{version}report/<string:ra_name>/<string:report_format>',methods=['GET'])
+@app.route(f'{url_base}{version}report/<path:ra_name>/<string:report_format>',methods=['GET'])
 @cross_origin()
 def reportRA(ra_name, report_format):
     username = getUsername()

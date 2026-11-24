@@ -12,7 +12,7 @@ def allowed_attachment(filename):
            filename.rsplit('.', 1)[1].lower() in {'csv'}
 
 # PUT GENERAL_INFO
-@app.route(f'{url_base}{version}general_info/<string:ra_name>',methods=['PUT'])
+@app.route(f'{url_base}{version}general_info/<path:ra_name>',methods=['PUT'])
 @cross_origin()
 def updateGeneralInfo(ra_name):
     username = getUsername()
@@ -52,7 +52,7 @@ def updateGeneralInfo(ra_name):
         return json.dumps(f'Failed to update General Info for {ra_name} with error: {data}'), 500, {'ContentType':'application/json'} 
 
 # PUT USERS
-@app.route(f'{url_base}{version}users/<string:ra_name>',methods=['PUT'])
+@app.route(f'{url_base}{version}users/<path:ra_name>',methods=['PUT'])
 @cross_origin()
 def updateUsers(ra_name):
     username = getUsername()
@@ -74,8 +74,8 @@ def updateUsers(ra_name):
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 # PUT RESULT
-@app.route(f'{url_base}{version}result/<string:ra_name>',methods=['PUT'])
-@app.route(f'{url_base}{version}result/<string:ra_name>/<int:step>',methods=['PUT'])
+@app.route(f'{url_base}{version}result/<path:ra_name>',methods=['PUT'])
+@app.route(f'{url_base}{version}result/<path:ra_name>/<int:step>',methods=['PUT'])
 @cross_origin()
 def updateResult(ra_name, step=None):
     username = getUsername()
